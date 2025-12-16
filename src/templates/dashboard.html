@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · Elecciones 2025{% endblock %}
+
+{% block head_extra %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-7xl px-4 py-6 space-y-6">
+
+  <!-- Header -->
+  <div class="flex flex-col gap-1">
+    <h1 class="text-2xl font-bold">Dashboard de Simulación</h1>
+    <p class="text-slate-600 text-sm">
+      Descriptivo (encuesta) + Simulación ABM + Monte Carlo (IC95%) + Escenarios.
+    </p>
+  </div>
+
+  <!-- Controles -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <div class="rounded-2xl border p-4 space-y-3">
+      <div class="font-semibold">Parámetros (Motor)</div>
+
+      <label class="text-sm">Semanas (steps)</label>
+      <input id="steps" type="number" min="1" value="12" class="w-full border rounded-xl px-3 py-2">
+
+      <label class="text-sm">Réplicas Monte Carlo (≥1000)</label>
+      <input id="replicas" type="number" min="1000" value="1000" class="w-full border rounded-xl px-3 py-2">
+
+      <label class="text-sm">Umbral de contagio</label>
+      <input id="umbral" type="number" step="0.01" min="0" max="1" value="0.60"
+             class="w-full border rounded-xl px-3 py-2">
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="text-sm">p_crisis</label>
+          <input id="p_crisis" type="number" step="0.01" min="0" max="1" value="0.30"
+                 class="w-full border rounded-xl px-3 py-2">
+        </div>
+        <div>
+          <label class="text-sm">λ denuncias</label>
+          <input id="lam_denuncias" type="number" step="0.1" min="0" value="1.0"
+                 class="w-full border rounded-xl px-3 py-2">
+        </div>
+        <div>
+          <label class="text-sm">μ debate</label>
+          <input id="mu_debate" type="number" step="0.01" min="0" max="1" value="0.60"
+                 class="w-full border rounded-xl px-3 py-2">
+        </div>
+        <div>
+          <label class="text-sm">σ debate</label>
+          <input id="sigma_debate" type="number" step="0.01" min="0" value="0.15"
+                 class="w-full border rounded-xl px-3 py-2">
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="text-sm">φ min</label>
+          <input id="phi_min" type="number" step="0.01" min="0" max="1" value="0.30"
+                 class="w-full border rounded-xl px-3 py-2">
+        </div>
+        <div>
+          <label class="text-sm">φ max</label>
+          <input id="phi_max" type="number" step="0.01" min="0" max="1" value="0.60"
+                 class="w-full border rounded-xl px-3 py-2">
+        </div>
+        <div>
+          <label class="text-sm">α min</label>
+          <input id="alpha_min" type="number" step="0.01" min="0" max="1" value="0.20"
+                 class="w-full border rounded-xl px-3 py-2">
+        </div>
+        <div>
+          <label class="text-sm">α max</label>
+          <input id="alpha_max" type="number" step="0.01" min="0" max="1" value="0.40"
+                 class="w-full border rounded-xl px-3 py-2">
+        </div>
+      </div>
+
+      <button id="btnRun"
+              class="w-full rounded-xl bg-slate-900 text-white font-semibold py-2 hover:bg-slate-800">
+        Ejecutar simulación
+      </button>
+
+      <div id="status" class="text-xs text-slate-500"></div>
+    </div>
+
+    <!-- Shocks -->
+    <div class="rounded-2xl border p-4 space-y-3">
+      <div class="font-semibold">Inyectar Shock (Escenario)</div>
+      <p class="text-xs text-slate-600">
+        Se aplica en el paso t (semana). Ej: corrupción (D_add), crisis (E=1), redes (R_set).
+      </p>
+
+      <label class="text-sm">Semana t</label>
+      <input id="shock_t" type="number" min="0" value="4" class="w-full border rounded-xl px-3 py-2">
+
+      <label class="text-sm">Tipo</label>
+      <select id="shock_tipo" class="w-full border rounded-xl px-3 py-2">
+        <option value="D_add">Escándalo corrupción (D_add)</option>
+        <option value="E">Crisis económica (E=1)</option>
+        <option value="R_set">Viralización redes (R_set)</option>
+        <option value="P_set">Debate (P_set)</option>
+      </select>
+
+      <label class="text-sm">Magnitud</label>
+      <input id="shock_val" type="number" step="0.1" value="3"
+             class="w-full border rounded-xl px-3 py-2">
+
+      <button id="btnAddShock"
+              class="w-full rounded-xl border font-semibold py-2 hover:bg-slate-50">
+        Agregar shock a la corrida
+      </button>
+
+      <div class="text-xs">
+        <div class="font-semibold mt-2">Shocks activos:</div>
+        <pre id="shock_list" class="bg-slate-50 border rounded-xl p-3 overflow-auto"></pre>
+      </div>
+    </div>
+
+    <!-- IC final -->
+    <div class="rounded-2xl border p-4 space-y-3">
+      <div class="font-semibold">Resultado final (Monte Carlo, IC95%)</div>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="border rounded-xl p-3">
+          <div class="text-xs text-slate-500">Tuto (A)</div>
+          <div id="resA" class="text-lg font-bold">—</div>
+          <div id="icA" class="text-xs text-slate-600">—</div>
+        </div>
+        <div class="border rounded-xl p-3">
+          <div class="text-xs text-slate-500">Paz (B)</div>
+          <div id="resB" class="text-lg font-bold">—</div>
+          <div id="icB" class="text-xs text-slate-600">—</div>
+        </div>
+      </div>
+
+      <div class="border rounded-xl p-3">
+        <div class="text-xs text-slate-500">Ver réplica específica (RF 3.4)</div>
+        <div class="flex gap-2 mt-2">
+          <input id="replica_id" type="number" min="1" value="1"
+                 class="w-full border rounded-xl px-3 py-2">
+          <button id="btnReplica"
+                  class="px-3 rounded-xl bg-slate-900 text-white font-semibold hover:bg-slate-800">
+            Ver
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RF 3.1 Descriptivo -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <div class="rounded-2xl border p-4">
+      <div class="font-semibold mb-2">Intención de voto (encuesta)</div>
+      <canvas id="pieVoto"></canvas>
+    </div>
+    <div class="rounded-2xl border p-4">
+      <div class="font-semibold mb-2">Distribución por estrato</div>
+      <canvas id="barEstrato"></canvas>
+    </div>
+    <div class="rounded-2xl border p-4">
+      <div class="font-semibold mb-2">Distribución por ideología</div>
+      <canvas id="barIdeo"></canvas>
+    </div>
+  </div>
+
+  <!-- RF 3.2 Time-series con IC95 -->
+  <div class="rounded-2xl border p-4">
+    <div class="font-semibold mb-2">Volatilidad (A vs B) + Indecisos (IC95%)</div>
+    <canvas id="lineVol"></canvas>
+  </div>
+
+  <!-- RF 3.3 Sensibilidad -->
+  <div class="rounded-2xl border p-4">
+    <div class="font-semibold mb-2">Análisis de Sensibilidad (coeficiente mayor por estrato)</div>
+    <div class="overflow-auto">
+      <table class="min-w-full text-sm" id="sensTable">
+        <thead class="bg-slate-50">
+          <tr>
+            <th class="text-left p-2 border">Estrato</th>
+            <th class="text-left p-2 border">Factor más predictivo</th>
+            <th class="text-left p-2 border">Coeficiente</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- RF 3.4 Escenario (réplica) -->
+  <div class="rounded-2xl border p-4">
+    <div class="font-semibold mb-2">Visualizador de Escenario (réplica seleccionada)</div>
+    <p class="text-xs text-slate-600 mb-2">
+      Muestra shocks y el valor macro h(t) que empuja la intención de voto.
+    </p>
+    <canvas id="flowScenario"></canvas>
+  </div>
+
+</div>
+
+<script defer src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

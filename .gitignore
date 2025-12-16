@@ -1,0 +1,73 @@
+# =========================
+# Python
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# =========================
+# Data / Inputs (locales)
+# =========================
+*.xlsx
+*.csv
+*.tsv
+
+# JSON (ignorar todos EXCEPTO el de encuesta validada)
+*.json
+!encuestavotacion.json
+
+# =========================
+# Logs / Outputs
+# =========================
+*.log
+logs/
+outputs/
+results/
+tmp/
+
+# =========================
+# OS / Editor
+# =========================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# VS Code
+.vscode/
+!.vscode/extensions.json
+
+# =========================
+# Node / Frontend (si luego agregas build)
+# =========================
+node_modules/
+dist/
+build/
+
+# =========================
+# Env vars / secrets
+# =========================
+.env
+.env.*
+
+# =========================
+# Coverage / Testing
+# =========================
+.coverage
+htmlcov/
+.pytest_cache/
+
+# =========================
+# Misc
+# =========================
+*.bak
+*.swp
+*.swo
