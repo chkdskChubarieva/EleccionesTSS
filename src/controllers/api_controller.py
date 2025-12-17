@@ -8,6 +8,7 @@ from src.services.calibration import calibrate
 from src.services.agents import build_agent
 from src.services.montecarlo import run_montecarlo
 from src.services.sensitivity import sensitivity_by_estrato
+from src.services.config_service import set_survey_active
 
 # cache en memoria para escenarios
 _LAST_RUN = {"samples": []}
@@ -116,3 +117,10 @@ class ApiSensitivity(MethodView):
         df = normalize_df(df)
         rows = sensitivity_by_estrato(df)
         return jsonify({"rows": rows})
+
+class ApiToggleSurvey(MethodView):
+    def post(self):
+        data = request.get_json(force=True)
+        new_status = bool(data.get("active"))
+        set_survey_active(new_status)
+        return jsonify({"success": True, "new_status": new_status})

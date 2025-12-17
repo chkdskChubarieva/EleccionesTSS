@@ -1,0 +1,35 @@
+{% extends "base.html" %} {% block title %}Encuesta Finalizada · Elecciones
+2025{% endblock %} {% block content %}
+<div class="min-h-[80vh] flex items-center justify-center p-4">
+  <div
+    class="max-w-lg w-full bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden text-center"
+  >
+    <div class="bg-slate-50 p-10">
+      <div
+        class="w-20 h-20 bg-slate-200 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl"
+      >
+        🔒
+      </div>
+      <h2 class="text-2xl font-bold text-slate-800 mb-2">Encuesta Cerrada</h2>
+      <p class="text-slate-600">
+        El periodo de recolección de datos ha finalizado.
+      </p>
+    </div>
+    <div class="p-8 space-y-4">
+      <p class="text-sm text-slate-500">
+        Gracias por tu interés en participar en el estudio de simulación
+        electoral 2025. Los datos recolectados están siendo procesados
+        actualmente.
+      </p>
+      <div class="pt-4">
+        <a
+          href="/"
+          class="inline-block px-6 py-3 rounded-xl bg-slate-900 text-white font-semibold hover:bg-slate-800 transition-all"
+        >
+          Volver al Inicio
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

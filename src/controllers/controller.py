@@ -1,18 +1,22 @@
-# src/controllers/controller.py
 from flask.views import MethodView
 from flask import request, render_template, redirect, url_for
 from src.services.sheets import append_google_forms_like
+from src.services.config_service import is_survey_active
 
 class EncuestaController(MethodView):
     def get(self):
+        # VERIFICACIÓN: Si está cerrada, mostrar pantalla de bloqueo
+        if not is_survey_active():
+            return render_template("encuesta_cerrada.html")
+            
         return render_template("encuesta.html")
 
     def post(self):
-        form_dict = request.form.to_dict(flat=False)
+        if not is_survey_active():
+            return render_template("encuesta_cerrada.html")
 
+        form_dict = request.form.to_dict(flat=False)
         print("\n=== NUEVA RESPUESTA ===")
-        for k, v in form_dict.items():
-            print(f"{k}: {v}")
         print("=======================\n")
 
         append_google_forms_like(form_dict)

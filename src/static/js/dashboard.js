@@ -356,6 +356,39 @@ async function loadScenario(replica) {
 
 // Event listeners
 document.addEventListener("DOMContentLoaded", async () => {
+  const surveyToggle = qs("surveyToggle");
+  const surveyStatusText = qs("surveyStatusText");
+
+  if (surveyToggle) {
+    surveyToggle.addEventListener("change", async () => {
+      const isActive = surveyToggle.checked;
+
+      // Feedback visual inmediato
+      if (isActive) {
+        surveyStatusText.textContent = "🟢 Habilitada";
+        surveyStatusText.className = "text-sm font-semibold text-green-600";
+      } else {
+        surveyStatusText.textContent = "⚫ Deshabilitada";
+        surveyStatusText.className = "text-sm font-semibold text-slate-500";
+      }
+
+      // Llamada a API
+      try {
+        const res = await fetch("/api/toggle-survey", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ active: isActive }),
+        });
+        const data = await res.json();
+        if (!data.success) alert("Error al guardar estado");
+      } catch (e) {
+        console.error(e);
+        alert("Error de conexión");
+        // Revertir en caso de error
+        surveyToggle.checked = !isActive;
+      }
+    });
+  }
   // 1. Cargar datos iniciales
   await loadSensitivity();
   updateShockListVisual();

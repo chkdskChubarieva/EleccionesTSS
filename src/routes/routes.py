@@ -1,8 +1,9 @@
 # src/routes/routes.py
 from src.controllers.controller import EncuestaController
 from src.controllers.dashboard_controller import DashboardController, DescriptivoController
-from src.controllers.api_controller import ApiCalibrate, ApiMontecarlo, ApiScenario, ApiSensitivity
+from src.controllers.api_controller import ApiCalibrate, ApiMontecarlo, ApiScenario, ApiSensitivity, ApiToggleSurvey
 from src.controllers.auth_controller import LoginController, LogoutController, login_required
+
 
 def register_routes(app):
     app.add_url_rule("/encuesta", view_func=EncuestaController.as_view("encuesta"), methods=["GET","POST"])
@@ -21,3 +22,4 @@ def register_routes(app):
     app.add_url_rule("/api/montecarlo", view_func=login_required(ApiMontecarlo.as_view("api_montecarlo")), methods=["POST"])
     app.add_url_rule("/api/scenario/<int:replica>", view_func=login_required(ApiScenario.as_view("api_scenario")), methods=["GET"])
     app.add_url_rule("/api/sensitivity", view_func=login_required(ApiSensitivity.as_view("api_sensitivity")), methods=["GET"])
+    app.add_url_rule("/api/toggle-survey", view_func=login_required(ApiToggleSurvey.as_view("api_toggle_survey")), methods=["POST"])
