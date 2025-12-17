@@ -57,7 +57,7 @@ def run_montecarlo(
         finals_A.append(fin["A"])
         finals_B.append(fin["B"])
 
-        if r < 5:  # guardamos pocas para visualizar escenarios luego
+        if r < 100:  # guardamos pocas para visualizar escenarios luego
             traces_sample.append({"replica": r+1, "trace": trace, "debug": debug})
 
     mA, loA, hiA = ic95(finals_A)
