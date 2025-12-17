@@ -2,8 +2,11 @@
 from flask.views import MethodView
 from flask import request, render_template, redirect, url_for
 from src.services.sheets import append_google_forms_like
+from src.services.data_source import insertar_respuesta
 
 class EncuestaController(MethodView):
+    methods = ["GET", "POST"]  
+
     def get(self):
         return render_template("encuesta.html")
 
@@ -16,6 +19,7 @@ class EncuestaController(MethodView):
         print("=======================\n")
 
         append_google_forms_like(form_dict)
+        insertar_respuesta(request.form) 
 
         return """
         <script>
