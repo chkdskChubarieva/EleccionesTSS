@@ -2,8 +2,11 @@ from flask.views import MethodView
 from flask import request, render_template, redirect, url_for
 from src.services.sheets import append_google_forms_like
 from src.services.config_service import is_survey_active
+from src.services.data_source import insertar_respuesta
 
 class EncuestaController(MethodView):
+    methods = ["GET", "POST"]  
+
     def get(self):
         # VERIFICACIÓN: Si está cerrada, mostrar pantalla de bloqueo
         if not is_survey_active():
@@ -20,6 +23,7 @@ class EncuestaController(MethodView):
         print("=======================\n")
 
         append_google_forms_like(form_dict)
+        insertar_respuesta(request.form) 
 
         return """
         <script>
