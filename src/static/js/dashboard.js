@@ -338,25 +338,39 @@ async function loadScenario(replica) {
           },
 
           {
-            type: "bar",
-            label: "Regla contagio A (%)",
-            data: contA,
-            yAxisID: "yR",
+             type: "bar",
+             label: "Regla contagio A (%)",
+             data: contA,
+             yAxisID: "yR",
+             backgroundColor: "rgba(59, 130, 246, 0.25)", // azul
+             borderColor: "rgba(59, 130, 246, 0.9)",
+             borderWidth: 1.5,
+             barThickness: 20,
           },
           {
             type: "bar",
             label: "Regla contagio B (%)",
             data: contB,
             yAxisID: "yR",
+            backgroundColor: "rgba(239, 68, 68, 0.25)", // rojo
+            borderColor: "rgba(239, 68, 68, 0.9)",
+            borderWidth: 1.5,  
+            barThickness: 20,
           },
 
           {
-            type: "line",
-            label: "Shock activo (marca)",
-            data: shockMark,
-            showLine: false,
-            pointRadius: 6,
-            yAxisID: "yM",
+             type: "line",
+             label: "Shock activo (marca)",
+             data: shockMark,
+             showLine: false,
+             yAxisID: "yM",
+
+            pointBackgroundColor: "rgba(245, 158, 11, 1)", // ámbar
+            pointBorderColor: "rgba(0, 0, 0, 0.35)",
+            pointBorderWidth: 2,
+
+            pointRadius: 8,
+            pointHoverRadius: 10,
           },
         ],
       },
