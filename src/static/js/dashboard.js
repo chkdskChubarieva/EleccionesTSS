@@ -291,19 +291,40 @@ async function loadScenario(replica) {
       return;
     }
 
-    const debug = data.debug || [];
-    const labels = debug.map((d) => `Semana ${d.t}`);
-    const ht = debug.map((d) => d.h_t || 0);
+    const debug = Array.isArray(data.debug) ? data.debug : [];
+    if (debug.length === 0) {
+      setStatus("⚠️ La réplica no tiene debug para graficar.");
+      return;
+    }
+
+    const labels = debug.map((d, i) => `Semana ${d.t ?? i}`);
+
+    const ht = debug.map((d) => (typeof d.h_t === "number" ? d.h_t : 0));
+
+    const contA = debug.map((d) =>
+      d.rules && typeof d.rules.contagio_A_ratio === "number"
+        ? d.rules.contagio_A_ratio * 100
+        : null
+    );
+    const contB = debug.map((d) =>
+      d.rules && typeof d.rules.contagio_B_ratio === "number"
+        ? d.rules.contagio_B_ratio * 100
+        : null
+    );
+
+    const shockMark = debug.map((d) =>
+      Array.isArray(d.events) && d.events.length > 0 ? 1 : null
+    );
 
     if (flowScenario) flowScenario.destroy();
 
     const ctxFlow = document.getElementById("flowScenario");
     flowScenario = new Chart(ctxFlow, {
-      type: "line",
       data: {
-        labels: labels,
+        labels,
         datasets: [
           {
+            type: "line",
             label: "Factor macro h(t)",
             data: ht,
             borderColor: "rgb(75, 192, 192)",
@@ -313,6 +334,29 @@ async function loadScenario(replica) {
             borderWidth: 3,
             pointRadius: 4,
             pointHoverRadius: 6,
+            yAxisID: "y",
+          },
+
+          {
+            type: "bar",
+            label: "Regla contagio A (%)",
+            data: contA,
+            yAxisID: "yR",
+          },
+          {
+            type: "bar",
+            label: "Regla contagio B (%)",
+            data: contB,
+            yAxisID: "yR",
+          },
+
+          {
+            type: "line",
+            label: "Shock activo (marca)",
+            data: shockMark,
+            showLine: false,
+            pointRadius: 6,
+            yAxisID: "yM",
           },
         ],
       },
@@ -320,39 +364,56 @@ async function loadScenario(replica) {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: {
-            display: true,
-            position: "top",
-          },
+          legend: { display: true, position: "top" },
           tooltip: {
+            mode: "index",
+            intersect: false,
             callbacks: {
-              label: function (context) {
-                return "h(t): " + context.parsed.y.toFixed(3);
+              afterBody: function (items) {
+                const idx = items?.[0]?.dataIndex ?? 0;
+                const d = debug[idx] || {};
+                const evs = Array.isArray(d.events) ? d.events : [];
+                if (evs.length === 0) return "";
+
+                return ["Shocks activos:", ...evs.map((e) => "• " + e)];
               },
             },
           },
         },
+        interaction: { mode: "nearest", axis: "x", intersect: false },
         scales: {
           y: {
-            grid: {
-              color: "rgba(0, 0, 0, 0.05)",
-            },
+            grid: { color: "rgba(0, 0, 0, 0.05)" },
+            title: { display: true, text: "h(t)" },
           },
-          x: {
-            grid: {
-              display: false,
-            },
+          yR: {
+            position: "right",
+            min: 0,
+            max: 100,
+            grid: { drawOnChartArea: false },
+            title: { display: true, text: "Reglas (%)" },
           },
+          yM: {
+            position: "right",
+            min: 0,
+            max: 1.2,
+            grid: { drawOnChartArea: false },
+            display: false, 
+          },
+          x: { grid: { display: false } },
         },
       },
     });
 
-    setStatus(`📊 Mostrando escenario réplica ${replica}`);
+    setStatus(
+      `📊 Mostrando escenario réplica ${replica} (debug: ${debug.length} periodos)`
+    );
   } catch (err) {
     console.error("Error cargando escenario:", err);
     setStatus("❌ Error al cargar escenario");
   }
 }
+
 
 // Event listeners
 document.addEventListener("DOMContentLoaded", async () => {
