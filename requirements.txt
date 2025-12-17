@@ -1,0 +1,22 @@
+# Core numérico y datos
+numpy>=1.24
+pandas>=2.0
+
+# Visualización
+matplotlib>=3.7
+
+# Machine Learning / Regresión
+scikit-learn>=1.3
+
+# Backend Flask
+flask>=2.3
+python-dotenv>=1.0
+
+# Google Sheets (Google Forms simulation)
+gspread>=6.0
+pytz>=2023.3
+
+# Google auth (dependencias usadas por gspread)
+google-auth>=2.22
+google-auth-oauthlib>=1.0
+google-auth-httplib2>=0.1

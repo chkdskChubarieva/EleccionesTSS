@@ -21,9 +21,8 @@ ENV/
 *.csv
 *.tsv
 
-# JSON (ignorar todos EXCEPTO el de encuesta validada)
+# JSON (ignorar TODOS los json)
 *.json
-!encuestavotacion.json
 
 # =========================
 # Logs / Outputs
@@ -71,5 +70,3 @@ htmlcov/
 *.bak
 *.swp
 *.swo
-
-encuestavotacion.json

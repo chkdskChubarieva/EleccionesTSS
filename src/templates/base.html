@@ -6,37 +6,66 @@
   <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/caja-de-votacion.png') }}">
   <title>{% block title %}Elecciones 2025 · Simulación{% endblock %}</title>
 
-  <!-- Tailwind CDN (modo simple) -->
+  <!-- Tailwind CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    .nav-link {
+      transition: all 0.2s ease;
+    }
+    .nav-link:hover {
+      transform: translateY(-1px);
+    }
+  </style>
 
   {% block head_extra %}{% endblock %}
 </head>
 
-<body class="bg-white text-slate-900">
+<body class="bg-slate-50 text-slate-900">
   <!-- NAVBAR -->
-  <nav class="border-b bg-white/80 backdrop-blur">
+  <nav class="border-b bg-white/95 backdrop-blur-sm shadow-sm sticky top-0 z-50">
     <div class="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="h-9 w-9 rounded-xl bg-slate-900 text-white grid place-items-center font-bold">E</div>
+        <div class="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-600 to-blue-800 text-white grid place-items-center font-bold text-lg shadow-md">
+          E
+        </div>
         <div class="leading-tight">
-          <div class="font-semibold">Elecciones 2025</div>
+          <div class="font-bold text-slate-900">Elecciones 2025</div>
           <div class="text-xs text-slate-500">Motor ABM + Monte Carlo</div>
         </div>
       </div>
 
       <div class="flex items-center gap-2">
         <a href="{{ url_for('dashboard') }}"
-           class="px-3 py-2 rounded-xl text-sm font-semibold border hover:bg-slate-50">
-          Dashboard
+           class="nav-link px-4 py-2 rounded-xl text-sm font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-700 border border-transparent hover:border-blue-200">
+          📊 Dashboard
+        </a>
+        <a href="{{ url_for('descriptivo') }}"
+           class="nav-link px-4 py-2 rounded-xl text-sm font-semibold text-slate-700 hover:bg-sky-50 hover:text-sky-700 border border-transparent hover:border-sky-200">
+          📈 Análisis Descriptivo
         </a>
         <a href="{{ url_for('encuesta') }}"
-           class="px-3 py-2 rounded-xl text-sm font-semibold bg-slate-900 text-white hover:bg-slate-800">
-          Ver encuesta
+           class="nav-link px-4 py-2 rounded-xl text-sm font-semibold bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 shadow-md">
+          📝 Encuesta
         </a>
       </div>
     </div>
   </nav>
 
   {% block content %}{% endblock %}
+
+  <!-- Footer -->
+  <footer class="mt-12 border-t bg-white">
+    <div class="mx-auto max-w-7xl px-4 py-6">
+      <div class="text-center text-sm text-slate-500">
+        <p class="mb-1">
+          <strong>Sistema de Simulación Electoral 2025</strong>
+        </p>
+        <p>
+          Herramienta académica de análisis predictivo basada en modelos de agentes (ABM) y simulación Monte Carlo
+        </p>
+      </div>
+    </div>
+  </footer>
 </body>
 </html>
