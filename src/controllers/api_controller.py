@@ -125,3 +125,52 @@ class ApiSensitivity(MethodView):
         df = normalize_df(df)
         rows = sensitivity_by_estrato(df)
         return jsonify({"rows": rows})
+
+    def post(self):
+        payload = request.get_json(force=True)
+        
+        # 1. Recuperar TODAS las variables
+        f_lealtad = float(payload.get("factor_lealtad", 1.0))
+        f_contagio = float(payload.get("factor_contagio", 1.0))
+        f_ruido = float(payload.get("factor_ruido", 1.0))
+        f_medios = float(payload.get("factor_medios", 1.0))   # Nuevo
+        f_memoria = float(payload.get("factor_memoria", 0.8)) # Nuevo
+
+        # Cargar datos base para la tabla (RF 3.3)
+        df = fetch_responses_df()
+        df = normalize_df(df)
+        
+        # Aquí llamarías a tu función real de sensibilidad pasando los factores
+        # rows = sensitivity_by_estrato(df, lealtad=f_lealtad, ...)
+        rows = sensitivity_by_estrato(df) 
+
+        # 2. Lógica de Proyección Visual (Simulación Rápida)
+        # Creamos una curva base y la deformamos según tus variables
+        
+        base_A = [40, 41, 40, 42, 43, 44] # Tendencia base Candidato A
+        base_B = [30, 29, 31, 30, 28, 27] # Tendencia base Candidato B
+        
+        proj_A = []
+        proj_B = []
+
+        for t, (a, b) in enumerate(zip(base_A, base_B)):
+            
+            avg_a = 40
+            desvio = (a - avg_a) * f_medios * f_contagio
+            
+            val_a = avg_a + (desvio / f_lealtad)
+            
+            import random
+            ruido = (random.random() - 0.5) * 2 * f_ruido
+            
+            proj_A.append(val_a + ruido)
+            
+            proj_B.append(b / f_lealtad - (ruido))
+
+        return jsonify({
+            "rows": rows,
+            "projection": {
+                "A": proj_A,
+                "B": proj_B
+            }
+        })

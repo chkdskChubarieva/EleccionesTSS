@@ -1,15 +1,17 @@
 # src/routes/routes.py
 from src.controllers.controller import EncuestaController
-from src.controllers.dashboard_controller import DashboardController, DescriptivoController
+from src.controllers.dashboard_controller import DashboardController, DescriptivoController, AnalisisController
 from src.controllers.api_controller import ApiCalibrate, ApiMontecarlo, ApiScenario
 from src.controllers.api_controller import ApiSensitivity
 
 def register_routes(app):
+    # Rutas de Vistas (HTML)
     app.add_url_rule("/", view_func=DashboardController.as_view("dashboard"))
     app.add_url_rule("/descriptivo", view_func=DescriptivoController.as_view("descriptivo"))
     app.add_url_rule("/encuesta", view_func=EncuestaController.as_view("encuesta"), methods=["GET","POST"])
-
+    
+    app.add_url_rule("/analisis", view_func=AnalisisController.as_view("analisis"))
     app.add_url_rule("/api/calibrate", view_func=ApiCalibrate.as_view("api_calibrate"), methods=["GET"])
     app.add_url_rule("/api/montecarlo", view_func=ApiMontecarlo.as_view("api_montecarlo"), methods=["POST"])
     app.add_url_rule("/api/scenario/<int:replica>", view_func=ApiScenario.as_view("api_scenario"), methods=["GET"])
-    app.add_url_rule("/api/sensitivity", view_func=ApiSensitivity.as_view("api_sensitivity"), methods=["GET"])
+    app.add_url_rule("/api/sensitivity", view_func=ApiSensitivity.as_view("api_sensitivity"), methods=["GET", "POST"])
