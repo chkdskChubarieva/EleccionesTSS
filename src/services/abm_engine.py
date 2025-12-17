@@ -4,14 +4,11 @@ import math
 from typing import List, Dict, Any, Optional
 from collections import Counter
 
-from src.services.agents import Agent
-from src.services.shocks import sample_daily_shocks, apply_injected_shocks
+from src.services.agents import Agent, clamp01
+from src.services.shocks import sample_daily_shocks, ElectoralShock
 
 def sigmoid(z: float) -> float:
     return 1.0 / (1.0 + math.exp(-z))
-
-def clamp01(x: float) -> float:
-    return max(0.0, min(1.0, x))
 
 class ABMSimulator:
     def __init__(
@@ -19,11 +16,11 @@ class ABMSimulator:
         agents: List[Agent],
         betas: Dict[str, float],
         params: Dict[str, Any],
-        steps: int = 60,
-        k_contacts: int = 10,
+        steps: int = 12,
+        k_contacts: int = 8,
         contagio_umbral: float = 0.60,
-        lealtad_estrato: Optional[Dict[str, float]] = None,  # 0..1 por estrato
-        injected_shocks: Optional[Dict[int, Dict[str, Any]]] = None,  # {t: {...}}
+        lealtad_estrato: Optional[Dict[str, float]] = None,
+        injected_shocks: Optional[Dict[int, List[Dict]]] = None, # Ahora es lista de dicts
         seed: int = 42
     ):
         self.rng = random.Random(seed)
@@ -37,73 +34,73 @@ class ABMSimulator:
         self.injected_shocks = injected_shocks or {}
 
         self.trace_counts = []
-        self.trace_debug = []  # para RF 3.4 luego (qué shocks/reglas se activaron)
+        self.trace_debug = []
 
     def _global_shares(self) -> Dict[str, float]:
         c = Counter(a.estado for a in self.agents)
         n = float(len(self.agents)) if self.agents else 1.0
         return {k: c.get(k, 0) / n for k in ["A","B","Indeciso","Blanco","Nulo"]}
 
-    def _estrato_loyalty(self, a: Agent) -> float:
-        # lealtad por estrato (si no existe, neutro)
-        base = float(self.lealtad_estrato.get(a.estrato, 0.5))
-        return clamp01(base)
+    def _calculate_shock_impact(self, agent: Agent, shocks: List[ElectoralShock]) -> Dict[str, float]:
+        """
+        Calcula cómo afectan los eventos de la semana a ESTE agente específico,
+        basado en sus intereses personales.
+        Retorna: {"bias_A": float, "bias_B": float} (positivo = a favor, negativo = en contra)
+        """
+        bias_A = 0.0
+        bias_B = 0.0
 
-    def _event_match_weight(self, a: Agent, sh) -> float:
-        """
-        Si el agente dijo que cambiaría por corrupción y hoy hay muchas denuncias,
-        su suscept aumenta para ese shock.
-        """
-        ev = (a.evento_det or "").lower()
-        w = 1.0
-        if "corrup" in ev or "denunc" in ev or "esc" in ev:
-            w += 0.20 * min(sh.D, 5)
-        if "crisis" in ev or "econom" in ev or "precio" in ev:
-            w += 0.40 * sh.E
-        if "debate" in ev:
-            w += 0.40 * abs(sh.P - 0.5) * 2
-        if "red" in ev or "viral" in ev:
-            w += 0.50 * sh.R
-        return clamp01(w / 3.0 + 0.7)  # reescala suave a ~[0.7..1]
+        for shock in shocks:
+            # 1. ¿Cuánto le importa el tema al agente?
+            relevancia = agent.intereses.get(shock.topic, 0.5)
+            
+            # 2. Fuerza del impacto = Magnitud del evento * Interés del agente
+            impacto = shock.magnitude * relevancia * shock.polarity
+            
+            # 3. Asignar al target
+            if shock.target == "A":
+                bias_A += impacto
+            elif shock.target == "B":
+                bias_B += impacto
+            elif shock.target == "SISTEMA":
+                # Golpe a ambos (voto nulo/blanco o indeciso)
+                bias_A += impacto * 0.5
+                bias_B += impacto * 0.5
+        
+        return {"bias_A": bias_A, "bias_B": bias_B}
 
     def _contacts(self, idx: int) -> List[Agent]:
-        # contactos aleatorios (puedes luego hacerlo por estrato/ideologia)
         n = len(self.agents)
-        if n <= 1:
-            return []
+        if n <= 1: return []
         picks = set()
         while len(picks) < min(self.k_contacts, n-1):
             j = self.rng.randrange(0, n)
-            if j != idx:
-                picks.add(j)
+            if j != idx: picks.add(j)
         return [self.agents[j] for j in picks]
 
     def run(self):
         for t in range(self.steps):
             shares = self._global_shares()
-            sh = sample_daily_shocks(self.params)
-            sh = apply_injected_shocks(sh, self.injected_shocks.get(t))
+            
+            # Obtener shocks del entorno + inyectados
+            sh_state = sample_daily_shocks(self.params, self.injected_shocks.get(t))
+            
+            # Factor macro (h_t) que afecta a todos un poco (clima general)
+            # Usamos el promedio de polaridad de eventos como proxy para h_t si hay eventos
+            macro_trend = 0.0
+            if sh_state.active_events:
+                # Sumamos polaridad neta hacia A (si target B es neg, suma a A)
+                for ev in sh_state.active_events:
+                    if ev.target == "A": macro_trend += ev.polarity * ev.magnitude
+                    elif ev.target == "B": macro_trend -= ev.polarity * ev.magnitude
+            
+            # h_t base + tendencia de eventos
+            z_base = self.betas.get("beta0", 0.0) + sh_state.phi * (shares["A"] - shares["B"])
+            h_t = sigmoid(z_base + macro_trend * 2.0)
 
-            # “impacto macro” estilo tu modelo: h_t inclina a A vs B
-            beta0 = self.betas.get("beta0", 0.0)
-            betaE = self.betas.get("betaE", 0.0)
-            betaD = self.betas.get("betaD", 0.0)
-            betaP = self.betas.get("betaP", 0.0)
-            betaR = self.betas.get("betaR", 0.0)
-
-            z = (
-                beta0
-                + betaE * (2 * sh.E - 1)
-                + betaD * sh.D
-                + betaP * (sh.P - 0.5)
-                + betaR * (sh.R - 0.5)
-                + sh.phi * (shares["A"] - shares["B"])
-            )
-            h_t = sigmoid(z)  # prob “macro” pro-A
-
-            # actualización agente por agente
             new_states = []
             for i, a in enumerate(self.agents):
+                # === 1. Influencia Social (Contagio) ===
                 contacts = self._contacts(i)
                 if contacts:
                     fracA = sum(1 for c in contacts if c.estado == "A") / len(contacts)
@@ -111,91 +108,93 @@ class ABMSimulator:
                 else:
                     fracA, fracB = shares["A"], shares["B"]
 
-                # RF 2.3: Umbral de contagio
-                contagio_activo_A = fracA >= self.contagio_umbral
-                contagio_activo_B = fracB >= self.contagio_umbral
+                # === 2. Impacto de Shocks (Personalizado) ===
+                # Calculamos el sesgo personal que generan las noticias de la semana
+                impactos = self._calculate_shock_impact(a, sh_state.active_events)
+                bias_A = impactos["bias_A"] # Ej: +0.4 (Noticia buena A)
+                bias_B = impactos["bias_B"] # Ej: -0.8 (Escándalo B)
 
-                # RF 2.3: Lealtad (firmeza + estrato)
-                loyalty = clamp01(0.55 * a.lealtad + 0.45 * self._estrato_loyalty(a))
-                resistencia = loyalty
-                suscept = clamp01(a.suscept * (1.0 - 0.7 * resistencia))
+                # === 3. Probabilidades de Transición ===
+                # Base de cambio (pequeña inercia)
+                base_prob = 0.05 * (1.0 - a.lealtad) # Los leales cambian menos
+                
+                # Probabilidad de moverse HACIA A o B
+                # Aumenta si hay bias positivo, contagio alto o h_t favorable
+                prob_move_A = base_prob + (0.1 * bias_A) + (0.15 if fracA > self.contagio_umbral else 0)
+                prob_move_B = base_prob + (0.1 * bias_B) + (0.15 if fracB > self.contagio_umbral else 0)
+                
+                # Clampear probabilidades
+                prob_move_A = clamp01(prob_move_A)
+                prob_move_B = clamp01(prob_move_B)
 
-                # RF 2.5: Impacto de shocks por “evento determinante”
-                w_evento = self._event_match_weight(a, sh)
-                suscept_eff = clamp01(suscept * w_evento)
-
-                # Probabilidades base (manteniendo tu esencia de tasas pequeñas)
-                # Las hacemos “micro” y moduladas por shocks (R, E, D, P) como tu modelo
-                # Luego las frenamos por lealtad.
-                p_to_A = 0.02 + 0.06 * sh.R + 0.10 * (h_t - 0.5)
-                p_to_B = 0.02 + 0.06 * sh.R - 0.10 * (h_t - 0.5)
-                p_to_A = clamp01(p_to_A * (0.6 + 0.8 * suscept_eff))
-                p_to_B = clamp01(p_to_B * (0.6 + 0.8 * suscept_eff))
-
-                # Contagio empuja fuerte si umbral se cumple
-                if contagio_activo_A:
-                    p_to_A = clamp01(p_to_A + 0.15 * sh.phi)
-                if contagio_activo_B:
-                    p_to_B = clamp01(p_to_B + 0.15 * sh.phi)
-
-                # Lealtad frena cambios
-                p_to_A *= (1.0 - 0.65 * resistencia)
-                p_to_B *= (1.0 - 0.65 * resistencia)
-
-                # Reglas por estado actual
-                s = a.estado
+                # === 4. Lógica de Cambio de Estado ===
                 u = self.rng.random()
+                current = a.estado
+                next_st = current
 
-                if s == "Indeciso":
-                    # decide A/B o se queda indeciso
-                    if u < p_to_A:
-                        ns = "A"
-                    elif u < p_to_A + p_to_B:
-                        ns = "B"
-                    else:
-                        ns = "Indeciso"
+                if current == "Indeciso":
+                    # Indeciso es el más sensible a los shocks y contagio
+                    score_A = prob_move_A * (1.0 + a.suscept)
+                    score_B = prob_move_B * (1.0 + a.suscept)
+                    
+                    if u < score_A: next_st = "A"
+                    elif u < score_A + score_B: next_st = "B"
+                
+                elif current == "A":
+                    # Si soy A, ¿qué me saca de aquí?
+                    # 1. Un shock negativo fuerte contra A (bias_A muy negativo)
+                    # 2. Un shock positivo muy fuerte de B (bias_B muy positivo)
+                    # 3. Contagio masivo de B
+                    
+                    fuerza_salida = 0.0
+                    if bias_A < -0.2: fuerza_salida += abs(bias_A) * 1.5 # Voto castigo
+                    if bias_B > 0.5: fuerza_salida += bias_B * 0.5       # Atracción rival
+                    if fracB > 0.7: fuerza_salida += 0.2                 # Presión social
+                    
+                    # La lealtad protege contra la salida
+                    prob_leave = clamp01(fuerza_salida * (1.0 - a.lealtad))
+                    
+                    if u < prob_leave:
+                        # Si me voy, ¿a dónde? Si el rival me atrajo voy a B, si fue castigo voy a Indeciso
+                        if bias_B > 0.3: next_st = "B"
+                        else: next_st = "Indeciso"
 
-                elif s == "A":
-                    # A puede volverse indeciso o pasarse a B si shock golpea
-                    flip = clamp01(0.01 + 0.05 * sh.E + 0.02 * min(sh.D, 3))
-                    flip *= (0.6 + suscept_eff)
-                    flip *= (1.0 - 0.7 * resistencia)
-                    if u < flip * 0.70:
-                        ns = "Indeciso"
-                    elif u < flip:
-                        ns = "B"
-                    else:
-                        ns = "A"
+                elif current == "B":
+                    # Simétrico para B
+                    fuerza_salida = 0.0
+                    if bias_B < -0.2: fuerza_salida += abs(bias_B) * 1.5
+                    if bias_A > 0.5: fuerza_salida += bias_A * 0.5
+                    if fracA > 0.7: fuerza_salida += 0.2
+                    
+                    prob_leave = clamp01(fuerza_salida * (1.0 - a.lealtad))
+                    
+                    if u < prob_leave:
+                        if bias_A > 0.3: next_st = "A"
+                        else: next_st = "Indeciso"
+                
+                else: # Blanco/Nulo
+                    # Pueden activarse si hay shocks muy positivos
+                    if bias_A > 0.6 and u < 0.1: next_st = "A"
+                    elif bias_B > 0.6 and u < 0.1: next_st = "B"
 
-                elif s == "B":
-                    # B cambia por debate (como tu idea tau_BA depende de P)
-                    flip = clamp01(0.01 + 0.06 * sh.P + 0.02 * min(sh.D, 3))
-                    flip *= (0.6 + suscept_eff)
-                    flip *= (1.0 - 0.7 * resistencia)
-                    if u < flip * 0.70:
-                        ns = "Indeciso"
-                    elif u < flip:
-                        ns = "A"
-                    else:
-                        ns = "B"
+                new_states.append(next_st)
 
-                else:
-                    # Blanco/Nulo suelen ser más estables, pero podrían ir a indeciso si hay alta viralización
-                    bump = clamp01(0.01 + 0.05 * sh.R)
-                    bump *= (0.6 + suscept_eff) * (1.0 - 0.6 * resistencia)
-                    ns = "Indeciso" if u < bump else s
-
-                new_states.append(ns)
-
-            # aplicar actualización
+            # Actualizar agentes
             for a, ns in zip(self.agents, new_states):
                 a.estado = ns
 
             self.trace_counts.append(self._global_shares())
-            self.trace_debug.append({
+            
+            # Guardar info para el gráfico de escenarios (RF 3.4)
+            # Resumimos los eventos de la semana para pintarlos luego
+            debug_info = {
                 "t": t,
-                "shock": {"E": sh.E, "D": sh.D, "P": sh.P, "R": sh.R, "phi": sh.phi, "alpha": sh.alpha},
-                "h_t": h_t
-            })
+                "h_t": h_t,
+                "events": [
+                    f"{ev.target}:{ev.topic} ({ev.polarity})" 
+                    for ev in sh_state.active_events
+                ] if sh_state.active_events else []
+            }
+            self.trace_debug.append(debug_info)
 
         return self.trace_counts, self.trace_debug
