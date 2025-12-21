@@ -22,7 +22,7 @@ ENV/
 *.tsv
 
 # JSON (ignorar todos EXCEPTO el de encuesta validada)
-*.json
+
 !encuestavotacion.json
 
 # =========================
