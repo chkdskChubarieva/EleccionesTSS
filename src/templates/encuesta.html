@@ -1,29 +1,32 @@
-{% extends "base.html" %}
-{% block content %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/encuesta.css') }}">
+{% extends "base.html" %} {% block content %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/encuesta.css') }}"
+/>
 <script defer src="{{ url_for('static', filename='js/encuesta.js') }}"></script>
 
 <div class="form-container">
   <header class="intro">
     <h2>Encuesta Intención de Voto 2025 · Segunda vuelta</h2>
     <p>
-      ¡Hola!😃 Te invito a responder esta encuesta anónima sobre percepciones y preferencias
-      para las elecciones presidenciales 2025. Tus respuestas ayudarán a comprender mejor
-      las prioridades de la juventud universitaria en Bolivia. ¡Gracias por tu tiempo!
-      <br>Todos los datos están protegidos 🔐 y son utilizados con fines académicos 💻 para un trabajo de simulación.
+      ¡Hola!😃 Te invito a responder esta encuesta anónima sobre percepciones y
+      preferencias para las elecciones presidenciales 2025. Tus respuestas
+      ayudarán a comprender mejor las prioridades de la juventud universitaria
+      en Bolivia. ¡Gracias por tu tiempo!
+      <br />Todos los datos están protegidos 🔐 y son utilizados con fines
+      académicos 💻 para un trabajo de simulación.
     </p>
   </header>
 
   <form action="{{ url_for('encuesta') }}" method="post" id="encuestaForm">
-
     <!-- ======================================================
          1) DATOS DEMOGRÁFICOS Y SOCIOECONÓMICOS
          ====================================================== -->
     <section class="section">
       <h3>1. Datos Demográficos y Socioeconómicos</h3>
       <p class="section-desc">
-        En esta sección recogemos información general para entender el contexto de las respuestas.
-        No se solicitan datos identificables personales.
+        En esta sección recogemos información general para entender el contexto
+        de las respuestas. No se solicitan datos identificables personales.
       </p>
 
       <div class="row">
@@ -54,17 +57,27 @@
         <div class="col field">
           <label for="departamento">Departamento</label>
           <select name="departamento" id="departamento" required>
-            <option value="" disabled selected>Seleccione un departamento</option>
-            <option>La Paz</option><option>Santa Cruz</option><option>Cochabamba</option>
-            <option>Oruro</option><option>Potosí</option><option>Chuquisaca</option>
-            <option>Tarija</option><option>Beni</option><option>Pando</option>
+            <option value="" disabled selected>
+              Seleccione un departamento
+            </option>
+            <option>La Paz</option>
+            <option>Santa Cruz</option>
+            <option>Cochabamba</option>
+            <option>Oruro</option>
+            <option>Potosí</option>
+            <option>Chuquisaca</option>
+            <option>Tarija</option>
+            <option>Beni</option>
+            <option>Pando</option>
           </select>
         </div>
 
         <div class="col field">
           <label for="provincia">Provincia / Localidad</label>
           <select name="provincia" id="provincia" required>
-            <option value="" disabled selected>Seleccione primero un departamento</option>
+            <option value="" disabled selected>
+              Seleccione primero un departamento
+            </option>
           </select>
         </div>
       </div>
@@ -81,21 +94,40 @@
 
         <div class="col field conditional" id="campo_carrera_estudiante" hidden>
           <label for="carrera_est">Carrera (estudiante)</label>
-          <input type="text" name="carrera_est" id="carrera_est" placeholder="Ej: Ing. Industrial">
+          <input
+            type="text"
+            name="carrera_est"
+            id="carrera_est"
+            placeholder="Ej: Ing. Industrial"
+          />
         </div>
 
-        <div class="col field conditional" id="campo_carrera_profesional" hidden>
+        <div
+          class="col field conditional"
+          id="campo_carrera_profesional"
+          hidden
+        >
           <label for="carrera_prof">Carrera (profesional)</label>
-          <input type="text" name="carrera_prof" id="carrera_prof" placeholder="Ej: Ing. de Sistemas">
+          <input
+            type="text"
+            name="carrera_prof"
+            id="carrera_prof"
+            placeholder="Ej: Ing. de Sistemas"
+          />
         </div>
 
         <div class="col field conditional" id="campo_area_profesional" hidden>
           <label for="area_prof">Área profesional</label>
           <select name="area_prof" id="area_prof">
             <option value="" disabled selected>Seleccione una opción</option>
-            <option>Salud</option><option>Tecnología</option><option>Turismo</option>
-            <option>Humanidades</option><option>Administración/Economía</option>
-            <option>Ingenierías</option><option>Educación</option><option>Arte/Cultura</option>
+            <option>Salud</option>
+            <option>Tecnología</option>
+            <option>Turismo</option>
+            <option>Humanidades</option>
+            <option>Administración/Economía</option>
+            <option>Ingenierías</option>
+            <option>Educación</option>
+            <option>Arte/Cultura</option>
             <option>Otro</option>
           </select>
         </div>
@@ -106,8 +138,10 @@
           <label for="estrato">Estrato Socioeconómico</label>
           <select name="estrato" id="estrato">
             <option value="" disabled selected>Seleccione una opción</option>
-            <option>Bajo</option><option>Medio-Bajo</option>
-            <option>Medio</option><option>Medio-Alto</option>
+            <option>Bajo</option>
+            <option>Medio-Bajo</option>
+            <option>Medio</option>
+            <option>Medio-Alto</option>
           </select>
         </div>
 
@@ -116,9 +150,24 @@
         <div class="col field">
           <label>Tiempo de conexión a internet por día</label>
           <div class="slider-col">
-            <input type="range" id="internet_slider" min="1" max="4" step="1" value="2" aria-label="Tiempo de conexión">
-            <span class="slider-badge" id="internet_label">Seleccione moviendo el control</span>
-            <input type="hidden" name="internet_diario" id="internet_value" value="">
+            <input
+              type="range"
+              id="internet_slider"
+              min="1"
+              max="4"
+              step="1"
+              value="2"
+              aria-label="Tiempo de conexión"
+            />
+            <span class="slider-badge" id="internet_label"
+              >Seleccione moviendo el control</span
+            >
+            <input
+              type="hidden"
+              name="internet_diario"
+              id="internet_value"
+              value=""
+            />
           </div>
         </div>
 
@@ -126,9 +175,12 @@
           <label for="estatus_laboral">Estatus Laboral</label>
           <select name="estatus_laboral" id="estatus_laboral">
             <option value="" disabled selected>Seleccione una opción</option>
-            <option>Empleado Institución Pública</option><option>Empleado Empresa Privada</option>
-            <option>Desempleado</option><option>Emprendedor</option>
-            <option>Freelance</option><option>Innovador</option>
+            <option>Empleado Institución Pública</option>
+            <option>Empleado Empresa Privada</option>
+            <option>Desempleado</option>
+            <option>Emprendedor</option>
+            <option>Freelance</option>
+            <option>Innovador</option>
           </select>
         </div>
       </div>
@@ -136,10 +188,26 @@
       <div class="field">
         <label>Acceso a servicios básicos</label>
         <div class="chips">
-          <label><input type="checkbox" name="servicios" value="Agua Potable"> Agua Potable</label>
-          <label><input type="checkbox" name="servicios" value="Energía Eléctrica"> Energía Eléctrica</label>
-          <label><input type="checkbox" name="servicios" value="Internet"> Internet</label>
-          <label><input type="checkbox" name="servicios" value="Saneamiento"> Saneamiento</label>
+          <label
+            ><input type="checkbox" name="servicios" value="Agua Potable" />
+            Agua Potable</label
+          >
+          <label
+            ><input
+              type="checkbox"
+              name="servicios"
+              value="Energía Eléctrica"
+            />
+            Energía Eléctrica</label
+          >
+          <label
+            ><input type="checkbox" name="servicios" value="Internet" />
+            Internet</label
+          >
+          <label
+            ><input type="checkbox" name="servicios" value="Saneamiento" />
+            Saneamiento</label
+          >
         </div>
       </div>
     </section>
@@ -150,13 +218,15 @@
     <section class="section">
       <h3>2. Intención de Voto y Alineamiento</h3>
       <p class="section-desc">
-        Esta sección consulta tu preferencia electoral y el nivel de seguridad de tu decisión,
-        además de tu interés general por la política.
+        Esta sección consulta tu preferencia electoral y el nivel de seguridad
+        de tu decisión, además de tu interés general por la política.
       </p>
 
       <div class="row">
         <div class="col field">
-          <label for="intencion_voto">Si las elecciones fueran mañana, ¿por quién votarías?</label>
+          <label for="intencion_voto"
+            >Si las elecciones fueran mañana, ¿por quién votarías?</label
+          >
           <select name="intencion_voto" id="intencion_voto">
             <option value="" disabled selected>Seleccione una opción</option>
             <option>Rodrigo Paz Pereira (Izquierda)</option>
@@ -170,16 +240,34 @@
         <div class="col field">
           <label>¿Qué tan seguro estás de tu elección?</label>
           <div class="slider-col">
-            <input type="range" id="seguridad_slider" min="1" max="5" step="1" value="3" aria-label="Seguridad del voto">
-            <span class="slider-badge" id="seguridad_label">Seleccione moviendo el control</span>
-            <input type="hidden" name="seguridad_voto" id="seguridad_value" value="">
+            <input
+              type="range"
+              id="seguridad_slider"
+              min="1"
+              max="5"
+              step="1"
+              value="3"
+              aria-label="Seguridad del voto"
+            />
+            <span class="slider-badge" id="seguridad_label"
+              >Seleccione moviendo el control</span
+            >
+            <input
+              type="hidden"
+              name="seguridad_voto"
+              id="seguridad_value"
+              value=""
+            />
           </div>
         </div>
       </div>
 
       <div class="row">
         <div class="col field">
-          <label for="evento_det">¿Qué tipo de evento le haría cambiar de opinión respecto a los candidatos?</label>
+          <label for="evento_det"
+            >¿Qué tipo de evento le haría cambiar de opinión respecto a los
+            candidatos?</label
+          >
           <select name="evento_determinante" id="evento_det">
             <option value="" disabled selected>Seleccione una opción</option>
             <option>Ninguno</option>
@@ -192,27 +280,68 @@
 
         <div class="col field conditional" id="campo_evento_otro" hidden>
           <label for="evento_otro">Especifique el evento</label>
-          <input type="text" name="evento_otro" id="evento_otro" placeholder="¿Cuál?">
+          <input
+            type="text"
+            name="evento_otro"
+            id="evento_otro"
+            placeholder="¿Cuál?"
+          />
         </div>
       </div>
 
       <!-- Sliders trasladados aquí (pediste estilo slider) -->
       <div class="row">
         <div class="col field">
-          <label>Nivel de Interés Político: ¿Qué tanto te interesa la política nacional?</label>
+          <label
+            >Nivel de Interés Político: ¿Qué tanto te interesa la política
+            nacional?</label
+          >
           <div class="slider-col">
-            <input type="range" id="interes_slider" min="1" max="5" step="1" value="3" aria-label="Interés político">
-            <span class="slider-badge" id="interes_label">Seleccione moviendo el control</span>
-            <input type="hidden" name="interes_politica" id="interes_value" value="">
+            <input
+              type="range"
+              id="interes_slider"
+              min="1"
+              max="5"
+              step="1"
+              value="3"
+              aria-label="Interés político"
+            />
+            <span class="slider-badge" id="interes_label"
+              >Seleccione moviendo el control</span
+            >
+            <input
+              type="hidden"
+              name="interes_politica"
+              id="interes_value"
+              value=""
+            />
           </div>
         </div>
 
         <div class="col field">
-          <label>¿Con qué frecuencia conversas sobre política con tus amigos o familiares?</label>
+          <label
+            >¿Con qué frecuencia conversas sobre política con tus amigos o
+            familiares?</label
+          >
           <div class="slider-col">
-            <input type="range" id="frecuencia_slider" min="1" max="4" step="1" value="2" aria-label="Frecuencia de conversación">
-            <span class="slider-badge" id="frecuencia_label">Seleccione moviendo el control</span>
-            <input type="hidden" name="frecuencia_conversacion" id="frecuencia_value" value="">
+            <input
+              type="range"
+              id="frecuencia_slider"
+              min="1"
+              max="4"
+              step="1"
+              value="2"
+              aria-label="Frecuencia de conversación"
+            />
+            <span class="slider-badge" id="frecuencia_label"
+              >Seleccione moviendo el control</span
+            >
+            <input
+              type="hidden"
+              name="frecuencia_conversacion"
+              id="frecuencia_value"
+              value=""
+            />
           </div>
         </div>
       </div>
@@ -221,8 +350,11 @@
         <label for="alineamiento">Alineamiento ideológico personal</label>
         <select name="alineamiento" id="alineamiento">
           <option value="" disabled selected>Seleccione una opción</option>
-          <option>Izquierda/Progresista</option><option>Centro-Izquierda</option>
-          <option>Centro</option><option>Centro-Derecha</option><option>Derecha Conservadora</option>
+          <option>Izquierda/Progresista</option>
+          <option>Centro-Izquierda</option>
+          <option>Centro</option>
+          <option>Centro-Derecha</option>
+          <option>Derecha Conservadora</option>
         </select>
       </div>
     </section>
@@ -233,10 +365,13 @@
     <section class="section">
       <h3>3. Factores de Decisión de Voto</h3>
       <p class="section-desc">
-        ¿Qué nivel de importancia tienen los siguientes <strong>temas generales</strong> de política pública
-        en tu decisión de voto para las elecciones presidenciales de 2025?<br>
-        <em>Escala:</em> 1 = <strong>Sin importancia</strong>, 2 = <strong>Poca importancia</strong>,
-        3 = <strong>Moderadamente importante</strong>, 4 = <strong>Importante</strong>, 5 = <strong>Muy importante</strong>.
+        ¿Qué nivel de importancia tienen los siguientes
+        <strong>temas generales</strong> de política pública en tu decisión de
+        voto para las elecciones presidenciales de 2025?<br />
+        <em>Escala:</em> 1 = <strong>Sin importancia</strong>, 2 =
+        <strong>Poca importancia</strong>, 3 =
+        <strong>Moderadamente importante</strong>, 4 =
+        <strong>Importante</strong>, 5 = <strong>Muy importante</strong>.
       </p>
 
       <div class="table-wrap">
@@ -252,23 +387,26 @@
             </tr>
           </thead>
           <tbody>
-            {% set temas = [
-              ("Economía (Estabilidad, Empleo, Deuda, Costo de vida, Créditos, Comercio exterior)","s3_economia"),
-              ("Educación (Calidad universitaria, Becas, Prácticas, Inserción)","s3_educacion"),
-              ("Corrupción y Justicia (Confianza, Sanción, Denuncia, Información pública)","s3_corrupcion_justicia"),
-              ("Servicios Públicos (Salud, Servicios básicos, Atención médica, Transporte)","s3_servicios"),
-              ("Seguridad Ciudadana (Emergencias, Confianza en la policía)","s3_seguridad"),
-              ("Medio Ambiente (Renovables, Incendios, Territorios indígenas)","s3_medioambiente"),
-              ("Derechos Sociales (Género, Pueblos indígenas, Laborales, Discapacidad)","s3_derechos"),
-              ("Modelo de Desarrollo (Estatismo, Libre mercado, Sostenible, Industria nacional)","s3_modelo_desarrollo")
-            ] %}
-            {% for label, name in temas %}
+            {% set temas = [ ("Economía (Estabilidad, Empleo, Deuda, Costo de
+            vida, Créditos, Comercio exterior)","s3_economia"), ("Educación
+            (Calidad universitaria, Becas, Prácticas,
+            Inserción)","s3_educacion"), ("Corrupción y Justicia (Confianza,
+            Sanción, Denuncia, Información pública)","s3_corrupcion_justicia"),
+            ("Servicios Públicos (Salud, Servicios básicos, Atención médica,
+            Transporte)","s3_servicios"), ("Seguridad Ciudadana (Emergencias,
+            Confianza en la policía)","s3_seguridad"), ("Medio Ambiente
+            (Renovables, Incendios, Territorios indígenas)","s3_medioambiente"),
+            ("Derechos Sociales (Género, Pueblos indígenas, Laborales,
+            Discapacidad)","s3_derechos"), ("Modelo de Desarrollo (Estatismo,
+            Libre mercado, Sostenible, Industria
+            nacional)","s3_modelo_desarrollo") ] %} {% for label, name in temas
+            %}
             <tr>
               <td>{{ label }}</td>
               {% for i in range(1,6) %}
               <td class="center">
                 <label class="rb">
-                  <input type="radio" name="{{ name }}" value="{{ i }}">
+                  <input type="radio" name="{{ name }}" value="{{ i }}" />
                   <span>{{ i }}</span>
                 </label>
               </td>
@@ -286,8 +424,9 @@
     <section class="section">
       <h3>4. Atributos del Candidato (Escala de Likert)</h3>
       <p class="section-desc">
-        ¿En qué medida describe el siguiente atributo a <strong>cada candidato</strong>?
-        (1 = Nada en absoluto, 2 = Poco, 3 = Moderadamente, 4 = Bastante, 5 = Totalmente).
+        ¿En qué medida describe el siguiente atributo a
+        <strong>cada candidato</strong>? (1 = Nada en absoluto, 2 = Poco, 3 =
+        Moderadamente, 4 = Bastante, 5 = Totalmente).
       </p>
 
       <div class="table-wrap">
@@ -300,26 +439,26 @@
             </tr>
           </thead>
           <tbody>
-            {% set atributos = [
-              "Experiencia en gestión",
-              "Honestidad/Transparencia",
-              "Capacidad de unir a la población",
-              "Conexión con los jóvenes",
-              "Liderazgo fuerte/Decisivo",
-              "Propuestas claras y realistas",
-              "Coherencia entre discurso y acciones",
-              "Empatía con sectores vulnerables",
-              "Competencia técnica/Preparación académica",
-              "Cercanía con la realidad boliviana"
-            ] %}
-            {% for a in atributos %}
+            {% set atributos = [ "Experiencia en gestión",
+            "Honestidad/Transparencia", "Capacidad de unir a la población",
+            "Conexión con los jóvenes", "Liderazgo fuerte/Decisivo", "Propuestas
+            claras y realistas", "Coherencia entre discurso y acciones",
+            "Empatía con sectores vulnerables", "Competencia técnica/Preparación
+            académica", "Cercanía con la realidad boliviana" ] %} {% for a in
+            atributos %}
             <tr>
               <td>{{ a }}</td>
               <td class="center">
-                <div class="likert likert-inline" data-name="attr_rodrigo_{{ loop.index }}"></div>
+                <div
+                  class="likert likert-inline"
+                  data-name="attr_rodrigo_{{ loop.index }}"
+                ></div>
               </td>
               <td class="center">
-                <div class="likert likert-inline" data-name="attr_tuto_{{ loop.index }}"></div>
+                <div
+                  class="likert likert-inline"
+                  data-name="attr_tuto_{{ loop.index }}"
+                ></div>
               </td>
             </tr>
             {% endfor %}
@@ -328,42 +467,145 @@
       </div>
 
       <h4 class="sub">Medio de Influencia</h4>
-      <p class="section-desc">¿Cuál es el principal medio por el que recibes información política? (selección múltiple)</p>
+      <p class="section-desc">
+        ¿Cuál es el principal medio por el que recibes información política?
+        (selección múltiple)
+      </p>
       <div class="grouped-options">
         <div>
           <strong>Redes sociales</strong>
           <div class="chips">
-            <label><input type="checkbox" name="medio_influencia" value="Tiktok"> Tiktok</label>
-            <label><input type="checkbox" name="medio_influencia" value="Facebook"> Facebook</label>
-            <label><input type="checkbox" name="medio_influencia" value="Instagram"> Instagram</label>
-            <label><input type="checkbox" name="medio_influencia" value="X"> X</label>
-            <label><input type="checkbox" name="medio_influencia" value="LinkedIn"> LinkedIn</label>
-            <label><input type="checkbox" name="medio_influencia" value="WhatsApp"> WhatsApp</label>
+            <label
+              ><input type="checkbox" name="medio_influencia" value="Tiktok" />
+              Tiktok</label
+            >
+            <label
+              ><input
+                type="checkbox"
+                name="medio_influencia"
+                value="Facebook"
+              />
+              Facebook</label
+            >
+            <label
+              ><input
+                type="checkbox"
+                name="medio_influencia"
+                value="Instagram"
+              />
+              Instagram</label
+            >
+            <label
+              ><input type="checkbox" name="medio_influencia" value="X" />
+              X</label
+            >
+            <label
+              ><input
+                type="checkbox"
+                name="medio_influencia"
+                value="LinkedIn"
+              />
+              LinkedIn</label
+            >
+            <label
+              ><input
+                type="checkbox"
+                name="medio_influencia"
+                value="WhatsApp"
+              />
+              WhatsApp</label
+            >
           </div>
         </div>
         <div>
           <strong>Medios Comunicacionales</strong>
           <div class="chips">
-            <label><input type="checkbox" name="medio_influencia" value="Televisión tradicional"> Televisión tradicional</label>
-            <label><input type="checkbox" name="medio_influencia" value="Radio tradicional"> Radio tradicional</label>
-            <label><input type="checkbox" name="medio_influencia" value="Periódico"> Periódico</label>
+            <label
+              ><input
+                type="checkbox"
+                name="medio_influencia"
+                value="Televisión tradicional"
+              />
+              Televisión tradicional</label
+            >
+            <label
+              ><input
+                type="checkbox"
+                name="medio_influencia"
+                value="Radio tradicional"
+              />
+              Radio tradicional</label
+            >
+            <label
+              ><input
+                type="checkbox"
+                name="medio_influencia"
+                value="Periódico"
+              />
+              Periódico</label
+            >
           </div>
         </div>
         <div>
           <strong>Medios Digitales</strong>
           <div class="chips">
-            <label><input type="checkbox" name="medio_influencia" value="Prensa en línea"> Prensa en línea</label>
-            <label><input type="checkbox" name="medio_influencia" value="Blogs/Revistas digitales"> Blogs/Revistas digitales</label>
-            <label><input type="checkbox" name="medio_influencia" value="YouTube (análisis político)"> YouTube (análisis político)</label>
+            <label
+              ><input
+                type="checkbox"
+                name="medio_influencia"
+                value="Prensa en línea"
+              />
+              Prensa en línea</label
+            >
+            <label
+              ><input
+                type="checkbox"
+                name="medio_influencia"
+                value="Blogs/Revistas digitales"
+              />
+              Blogs/Revistas digitales</label
+            >
+            <label
+              ><input
+                type="checkbox"
+                name="medio_influencia"
+                value="YouTube (análisis político)"
+              />
+              YouTube (análisis político)</label
+            >
           </div>
         </div>
         <div>
           <strong>Vínculos Sociales</strong>
           <div class="chips">
-            <label><input type="checkbox" name="medio_influencia" value="Familiares"> Familiares</label>
-            <label><input type="checkbox" name="medio_influencia" value="Amigos"> Amigos</label>
-            <label><input type="checkbox" name="medio_influencia" value="Docentes/Mentores"> Docentes/Mentores</label>
-            <label><input type="checkbox" name="medio_influencia" value="Compañeros"> Compañeros</label>
+            <label
+              ><input
+                type="checkbox"
+                name="medio_influencia"
+                value="Familiares"
+              />
+              Familiares</label
+            >
+            <label
+              ><input type="checkbox" name="medio_influencia" value="Amigos" />
+              Amigos</label
+            >
+            <label
+              ><input
+                type="checkbox"
+                name="medio_influencia"
+                value="Docentes/Mentores"
+              />
+              Docentes/Mentores</label
+            >
+            <label
+              ><input
+                type="checkbox"
+                name="medio_influencia"
+                value="Compañeros"
+              />
+              Compañeros</label
+            >
           </div>
         </div>
       </div>
@@ -374,11 +616,16 @@
          ====================================================== -->
     <section class="section">
       <h3>5. Expectativas personales y futuro laboral</h3>
-      <p class="section-desc">Responde seleccionando la opción que mejor refleja tu situación o expectativa actual.</p>
+      <p class="section-desc">
+        Responde seleccionando la opción que mejor refleja tu situación o
+        expectativa actual.
+      </p>
 
       <div class="row">
         <div class="col field">
-          <label for="expectativa_futuro">Expectativa de futuro profesional</label>
+          <label for="expectativa_futuro"
+            >Expectativa de futuro profesional</label
+          >
           <select name="expectativa_futuro" id="expectativa_futuro">
             <option value="" disabled selected>Seleccione una opción</option>
             <option>Conseguir un empleo estable en mi área profesional.</option>
@@ -391,35 +638,130 @@
       </div>
 
       <div class="field">
-        <label>¿Consideras que el mercado laboral boliviano ofrece suficientes oportunidades para los jóvenes?</label>
+        <label
+          >¿Consideras que el mercado laboral boliviano ofrece suficientes
+          oportunidades para los jóvenes?</label
+        >
         <div class="pill-radios" data-name="cond_oportunidades">
-          <label class="pill"><input type="radio" name="cond_oportunidades" value="Nada"><span>Nada</span></label>
-          <label class="pill"><input type="radio" name="cond_oportunidades" value="Pocas"><span>Pocas</span></label>
-          <label class="pill"><input type="radio" name="cond_oportunidades" value="Algunas"><span>Algunas</span></label>
-          <label class="pill"><input type="radio" name="cond_oportunidades" value="Bastantes"><span>Bastantes</span></label>
-          <label class="pill"><input type="radio" name="cond_oportunidades" value="Muchas"><span>Muchas</span></label>
+          <label class="pill"
+            ><input type="radio" name="cond_oportunidades" value="Nada" /><span
+              >Nada</span
+            ></label
+          >
+          <label class="pill"
+            ><input type="radio" name="cond_oportunidades" value="Pocas" /><span
+              >Pocas</span
+            ></label
+          >
+          <label class="pill"
+            ><input
+              type="radio"
+              name="cond_oportunidades"
+              value="Algunas"
+            /><span>Algunas</span></label
+          >
+          <label class="pill"
+            ><input
+              type="radio"
+              name="cond_oportunidades"
+              value="Bastantes"
+            /><span>Bastantes</span></label
+          >
+          <label class="pill"
+            ><input
+              type="radio"
+              name="cond_oportunidades"
+              value="Muchas"
+            /><span>Muchas</span></label
+          >
         </div>
       </div>
 
       <div class="field">
-        <label>¿En qué medida crees que tu carrera o formación es demandada en el país?</label>
+        <label
+          >¿En qué medida crees que tu carrera o formación es demandada en el
+          país?</label
+        >
         <div class="pill-radios" data-name="cond_demanda_carrera">
-          <label class="pill"><input type="radio" name="cond_demanda_carrera" value="Nada demandada"><span>Nada demandada</span></label>
-          <label class="pill"><input type="radio" name="cond_demanda_carrera" value="Poco demandada"><span>Poco demandada</span></label>
-          <label class="pill"><input type="radio" name="cond_demanda_carrera" value="Medianamente demandada"><span>Medianamente demandada</span></label>
-          <label class="pill"><input type="radio" name="cond_demanda_carrera" value="Demandada"><span>Demandada</span></label>
-          <label class="pill"><input type="radio" name="cond_demanda_carrera" value="Muy demandada"><span>Muy demandada</span></label>
+          <label class="pill"
+            ><input
+              type="radio"
+              name="cond_demanda_carrera"
+              value="Nada demandada"
+            /><span>Nada demandada</span></label
+          >
+          <label class="pill"
+            ><input
+              type="radio"
+              name="cond_demanda_carrera"
+              value="Poco demandada"
+            /><span>Poco demandada</span></label
+          >
+          <label class="pill"
+            ><input
+              type="radio"
+              name="cond_demanda_carrera"
+              value="Medianamente demandada"
+            /><span>Medianamente demandada</span></label
+          >
+          <label class="pill"
+            ><input
+              type="radio"
+              name="cond_demanda_carrera"
+              value="Demandada"
+            /><span>Demandada</span></label
+          >
+          <label class="pill"
+            ><input
+              type="radio"
+              name="cond_demanda_carrera"
+              value="Muy demandada"
+            /><span>Muy demandada</span></label
+          >
         </div>
       </div>
 
       <div class="field">
-        <label>¿Qué tan accesibles consideras los empleos formales con beneficios sociales?</label>
+        <label
+          >¿Qué tan accesibles consideras los empleos formales con beneficios
+          sociales?</label
+        >
         <div class="pill-radios" data-name="cond_acceso_formal">
-          <label class="pill"><input type="radio" name="cond_acceso_formal" value="Muy difícil de obtener"><span>Muy difícil de obtener</span></label>
-          <label class="pill"><input type="radio" name="cond_acceso_formal" value="Difícil de obtener"><span>Difícil de obtener</span></label>
-          <label class="pill"><input type="radio" name="cond_acceso_formal" value="Medianamente accesible"><span>Medianamente accesible</span></label>
-          <label class="pill"><input type="radio" name="cond_acceso_formal" value="Accesible"><span>Accesible</span></label>
-          <label class="pill"><input type="radio" name="cond_acceso_formal" value="Muy accesible"><span>Muy accesible</span></label>
+          <label class="pill"
+            ><input
+              type="radio"
+              name="cond_acceso_formal"
+              value="Muy difícil de obtener"
+            /><span>Muy difícil de obtener</span></label
+          >
+          <label class="pill"
+            ><input
+              type="radio"
+              name="cond_acceso_formal"
+              value="Difícil de obtener"
+            /><span>Difícil de obtener</span></label
+          >
+          <label class="pill"
+            ><input
+              type="radio"
+              name="cond_acceso_formal"
+              value="Medianamente accesible"
+            /><span>Medianamente accesible</span></label
+          >
+          <label class="pill"
+            ><input
+              type="radio"
+              name="cond_acceso_formal"
+              value="Accesible"
+            /><span>Accesible</span></label
+          >
+          <label class="pill"
+            ><input
+              type="radio"
+              name="cond_acceso_formal"
+              value="Muy accesible"
+            /><span>Muy accesible</span></label
+          >
         </div>
       </div>
     </section>
@@ -429,33 +771,39 @@
          ====================================================== -->
     <section class="section">
       <h3>6. Problemáticas nacionales a priorizar</h3>
-      <p class="section-desc">Indica la importancia de priorizar cada problemática (1 = Nada importante, 5 = Muy importante).</p>
+      <p class="section-desc">
+        Indica la importancia de priorizar cada problemática (1 = Nada
+        importante, 5 = Muy importante).
+      </p>
 
       <div class="table-wrap">
         <table class="matrix">
           <thead>
             <tr>
               <th>Problemática</th>
-              <th class="center">1</th><th class="center">2</th><th class="center">3</th><th class="center">4</th><th class="center">5</th>
+              <th class="center">1</th>
+              <th class="center">2</th>
+              <th class="center">3</th>
+              <th class="center">4</th>
+              <th class="center">5</th>
             </tr>
           </thead>
           <tbody>
-            {% set problemas = [
-              ("Crisis económica y desempleo","prob_crisis"),
-              ("Acceso a combustible y recursos energéticos","prob_combustible"),
-              ("Transporte público: calidad y cobertura","prob_transporte"),
-              ("Corrupción / Desconfianza institucional","prob_corrupcion"),
-              ("Seguridad ciudadana y crimen organizado","prob_seguridad"),
-              ("Salud y educación pública (acceso equitativo)","prob_salud_educacion"),
-              ("Medio ambiente y gestión de residuos","prob_medioambiente")
-            ] %}
-            {% for label, name in problemas %}
+            {% set problemas = [ ("Crisis económica y desempleo","prob_crisis"),
+            ("Acceso a combustible y recursos energéticos","prob_combustible"),
+            ("Transporte público: calidad y cobertura","prob_transporte"),
+            ("Corrupción / Desconfianza institucional","prob_corrupcion"),
+            ("Seguridad ciudadana y crimen organizado","prob_seguridad"),
+            ("Salud y educación pública (acceso
+            equitativo)","prob_salud_educacion"), ("Medio ambiente y gestión de
+            residuos","prob_medioambiente") ] %} {% for label, name in problemas
+            %}
             <tr>
               <td>{{ label }}</td>
               {% for i in range(1,6) %}
               <td class="center">
                 <label class="rb">
-                  <input type="radio" name="{{ name }}" value="{{ i }}">
+                  <input type="radio" name="{{ name }}" value="{{ i }}" />
                   <span>{{ i }}</span>
                 </label>
               </td>
@@ -473,23 +821,32 @@
     <section class="section">
       <h3>7. Trayectoria de candidatos y rol del vicepresidente</h3>
       <p class="section-desc">
-        Aquí evaluamos cuánto influye el pasado político/personal del candidato en tu decisión,
-        cuánto conoces sus trayectorias y qué importancia le das al rol del vicepresidente.
-        Selecciona una opción por cada pregunta.
+        Aquí evaluamos cuánto influye el pasado político/personal del candidato
+        en tu decisión, cuánto conoces sus trayectorias y qué importancia le das
+        al rol del vicepresidente. Selecciona una opción por cada pregunta.
       </p>
 
       <div class="likert-block center">
-        <label>¿En qué medida el pasado político o personal de un candidato influye en su decisión de voto?</label>
+        <label
+          >¿En qué medida el pasado político o personal de un candidato influye
+          en su decisión de voto?</label
+        >
         <div class="likert" data-name="trayectoria_influye"></div>
         <div class="choice-indicator" id="trayectoria_influye_text"></div>
       </div>
       <div class="likert-block center">
-        <label>¿Qué tanto cree conocer el historial político y profesional de los actuales candidatos presidenciales?</label>
+        <label
+          >¿Qué tanto cree conocer el historial político y profesional de los
+          actuales candidatos presidenciales?</label
+        >
         <div class="likert" data-name="trayectoria_conocimiento"></div>
         <div class="choice-indicator" id="trayectoria_conocimiento_text"></div>
       </div>
       <div class="likert-block center">
-        <label>¿Qué tan importante considera el rol del vicepresidente al momento de decidir su voto en una fórmula presidencial?</label>
+        <label
+          >¿Qué tan importante considera el rol del vicepresidente al momento de
+          decidir su voto en una fórmula presidencial?</label
+        >
         <div class="likert" data-name="vp_importancia"></div>
         <div class="choice-indicator" id="vp_importancia_text"></div>
       </div>
