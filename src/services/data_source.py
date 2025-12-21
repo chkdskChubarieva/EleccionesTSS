@@ -59,47 +59,44 @@ def fetch_responses_df(encuesta_id: int = 1, only_active: bool = True) -> pd.Dat
         print(f"✗ Error al obtener respuestas: {e}")
         return pd.DataFrame()
 
-def normalize_df(df: pd.DataFrame) -> pd.DataFrame:
+
+def normalize_df(df):
     """
-    Normaliza el DataFrame para compatibilidad con el motor de simulación
+    Normaliza el DataFrame para garantizar que las columnas críticas existan.
     """
     if df.empty:
         return df
+
+    if 'estrato_socioeconomico' not in df.columns:
+        df['estrato_socioeconomico'] = 'Medio'
     
-    df = df.copy()
-    
-    # 1. Estado inicial de voto
-    if 'intencion_voto' in df.columns:
-        df['estado_inicial'] = df['intencion_voto'].map(MAP_VOTO).fillna("Indeciso")
+    df['estrato'] = df['estrato_socioeconomico'].fillna('Medio').astype(str)
+
+    if 'ideologia' not in df.columns:
+        df['ideologia'] = 'Centro'
+    df['ideologia'] = df['ideologia'].fillna('Centro').astype(str)
+
+    col_seg = next((c for c in df.columns if 'seguridad' in c.lower()), None)
+    if col_seg:
+        df['seguridad_1a5'] = pd.to_numeric(df[col_seg], errors='coerce').fillna(3)
     else:
-        df['estado_inicial'] = "Indeciso"
+        df['seguridad_1a5'] = 3.0
+
+    col_voto = next((c for c in df.columns if 'voto' in c.lower() or 'candidato' in c.lower()), None)
     
-    # 2. Seguridad del voto (ya está como 1-5)
-    if 'seguridad_voto' in df.columns:
-        df['seguridad_1a5'] = pd.to_numeric(df['seguridad_voto'], errors='coerce').fillna(3).clip(1, 5)
+    if col_voto:
+        def limpiar_voto(val):
+            v = str(val).lower()
+            if 'tuto' in v or 'quiroga' in v: return 'A'
+            if 'paz' in v or 'rodrigo' in v: return 'B'
+            if 'blanco' in v: return 'Blanco'
+            if 'nulo' in v: return 'Nulo'
+            return 'Indeciso'
+        
+        df['estado_inicial'] = df[col_voto].apply(limpiar_voto)
     else:
-        df['seguridad_1a5'] = 3
-    
-    # 3. Estrato socioeconómico
-    df['estrato'] = df.get('estrato_socioeconomico', 'Medio').fillna('Medio').astype(str)
-    
-    # 4. Ideología
-    df['ideologia'] = df.get('alineamiento_ideologico', 'Centro').fillna('Centro').astype(str)
-    
-    # 5. Evento determinante
-    df['evento_det'] = df.get('evento_determinante', 'Ninguno').fillna('Ninguno').astype(str)
-    
-    # 6. Medios de comunicación
-    df['medios'] = df.get('medio_influencia', '').fillna('').astype(str)
-    
-    # 7. ID de agente
-    df['agent_id'] = range(1, len(df) + 1)
-    
-    # 8. Demografía adicional
-    df['edad_rango'] = df.get('edad', '18-24')
-    df['genero'] = df.get('genero', 'Prefiero no decir')
-    df['departamento'] = df.get('departamento', 'No especificado')
-    
+        df['estado_inicial'] = 'Indeciso'
+
     return df
 
 def get_encuesta_activa() -> Optional[Dict]:
