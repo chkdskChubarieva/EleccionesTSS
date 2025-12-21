@@ -1,102 +1,141 @@
-"""
-Servicio de acceso a datos con MySQL
-Reemplaza la lectura de Google Sheets
-"""
 import pandas as pd
-from typing import Optional, List, Dict
-from mysql.connector import Error
-import sys
-import os
+import numpy as np
+from typing import Optional, Dict
+from src.services.sheets import fetch_all_responses_as_df
 
-# Agregar path para importar configuración
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from controllers.database import get_db_connection
 
 # Mapeo de valores de voto
+COLUMN_MAPPING = {
+    # Pregunta en Sheets (parte clave) : Variable Interna
+    "estrato": "estrato_socioeconomico",
+    "alineamiento": "alineamiento_ideologico",
+    "seguro estás": "seguridad_1a5",
+    "si las elecciones fueran hoy": "intencion_voto",
+    "intención de voto": "intencion_voto",
+    "interés por la política": "interes_politica",
+    "frecuencia con la que conversas": "frecuencia_conversacion"
+}
+
 MAP_VOTO = {
-    "Jorge Quiroga Ramírez (Derecha)": "A",
-    "Rodrigo Paz Pereira (Izquierda)": "B",
-    "Voto Blanco": "Blanco",
-    "Voto Nulo": "Nulo",
-    "Aún no lo decido": "Indeciso",
+    "Jorge Quiroga": "A",
+    "Tuto": "A",
+    "Quiroga": "A",
+    "Rodrigo Paz": "B",
+    "Paz Pereira": "B",
+    "Blanco": "Blanco",
+    "Nulo": "Nulo",
+    "Indeciso": "Indeciso",
+    "No lo sé": "Indeciso"
 }
 
 def fetch_responses_df(encuesta_id: int = 1, only_active: bool = True) -> pd.DataFrame:
     """
-    Obtiene respuestas de la encuesta desde MySQL
-    
-    Args:
-        encuesta_id: ID de la encuesta a consultar
-        only_active: Solo incluir encuestas habilitadas
-        
-    Returns:
-        DataFrame con todas las respuestas
+    Obtiene los datos DIRECTAMENTE de Google Sheets.
+    Ignora MySQL para la lógica de simulación.
     """
+    print("--- 📡 Conectando a Google Sheets... ---")
     try:
-        with get_db_connection() as conn:
-            # Query base
-            query = """
-            SELECT 
-                r.*,
-                e.nombre as encuesta_nombre,
-                e.habilitada as encuesta_activa
-            FROM respuestas r
-            JOIN encuestas e ON r.encuesta_id = e.id
-            WHERE r.encuesta_id = %s
-            """
+        # Intentamos obtener el DF desde el servicio de sheets
+        # Si tu función en sheets.py se llama diferente, ajusta esta línea:
+        df = fetch_all_responses_as_df() 
+        
+        if df.empty:
+            print("⚠️ Alerta: Google Sheets devolvió un DataFrame vacío.")
+            return pd.DataFrame()
             
-            if only_active:
-                query += " AND e.habilitada = TRUE"
-            
-            query += " ORDER BY r.fecha_respuesta DESC"
-            
-            df = pd.read_sql(query, conn, params=(encuesta_id,))
-            
-            print(f"✓ Cargadas {len(df)} respuestas desde MySQL")
-            return df
-            
-    except Error as e:
-        print(f"✗ Error al obtener respuestas: {e}")
+        print(f"✅ Datos recibidos de Sheets: {len(df)} filas.")
+        return df
+        
+    except Exception as e:
+        print(f"❌ Error crítico leyendo Google Sheets: {e}")
+        # Retornamos DF vacío para no romper la app
         return pd.DataFrame()
 
 
-def normalize_df(df):
+def normalize_df(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Normaliza el DataFrame para garantizar que las columnas críticas existan.
+    Normaliza y limpia los datos crudos de Sheets para que el Dashboard los entienda.
     """
     if df.empty:
         return df
+    
+    df = df.copy()
+    
+    # 1. Normalizar Nombres de Columnas (Busqueda difusa)
+    # Buscamos columnas que contengan palabras clave y las renombramos
+    renames = {}
+    for col in df.columns:
+        col_lower = str(col).lower()
+        for key_phrase, target_col in COLUMN_MAPPING.items():
+            if key_phrase in col_lower:
+                renames[col] = target_col
+                break # Ya encontramos match para esta columna
+    
+    if renames:
+        df = df.rename(columns=renames)
+        print(f"🔄 Columnas renombradas: {list(renames.values())}")
 
+    # 2. Garantizar columnas críticas (Fillna seguro)
+    
+    # --- ESTRATO ---
     if 'estrato_socioeconomico' not in df.columns:
         df['estrato_socioeconomico'] = 'Medio'
-    
     df['estrato'] = df['estrato_socioeconomico'].fillna('Medio').astype(str)
 
-    if 'ideologia' not in df.columns:
-        df['ideologia'] = 'Centro'
-    df['ideologia'] = df['ideologia'].fillna('Centro').astype(str)
+    # --- IDEOLOGÍA ---
+    if 'alineamiento_ideologico' not in df.columns:
+        df['alineamiento_ideologico'] = 'Centro'
+    df['ideologia'] = df['alineamiento_ideologico'].fillna('Centro').astype(str)
 
-    col_seg = next((c for c in df.columns if 'seguridad' in c.lower()), None)
-    if col_seg:
-        df['seguridad_1a5'] = pd.to_numeric(df[col_seg], errors='coerce').fillna(3)
+    # --- INTENCIÓN DE VOTO ---
+    # Buscamos la columna de voto (ya renombrada o buscamos de nuevo)
+    col_voto = None
+    if 'intencion_voto' in df.columns:
+        col_voto = 'intencion_voto'
     else:
-        df['seguridad_1a5'] = 3.0
-
-    col_voto = next((c for c in df.columns if 'voto' in c.lower() or 'candidato' in c.lower()), None)
+        # Intentar encontrarla por palabras clave
+        for col in df.columns:
+            col_lower = str(col).lower()
+            if 'elecciones' in col_lower or 'votarías' in col_lower or 'voto' in col_lower:
+                col_voto = col
+                break
+    
+    print(f"🔍 Columna de voto detectada: {col_voto}")
+    print(f"📊 Columnas disponibles: {list(df.columns)}")
     
     if col_voto:
         def limpiar_voto(val):
-            v = str(val).lower()
-            if 'tuto' in v or 'quiroga' in v: return 'A'
-            if 'paz' in v or 'rodrigo' in v: return 'B'
-            if 'blanco' in v: return 'Blanco'
-            if 'nulo' in v: return 'Nulo'
-            return 'Indeciso'
+            val_str = str(val).lower().strip()
+            for key, code in MAP_VOTO.items():
+                if key.lower() in val_str:
+                    return code
+            return "Indeciso"
         
         df['estado_inicial'] = df[col_voto].apply(limpiar_voto)
+        print(f"✅ Estado inicial creado. Distribución: {df['estado_inicial'].value_counts().to_dict()}")
     else:
+        print("⚠️ No se encontró columna de voto, asignando Indeciso a todos")
         df['estado_inicial'] = 'Indeciso'
 
+    # --- SEGURIDAD ---
+    if 'seguridad_1a5' in df.columns:
+        # A veces viene como "3 - Poco seguro", extraemos el número
+        def extraer_num(val):
+            try:
+                return float(str(val).split()[0])
+            except:
+                return 3.0
+        df['seguridad_1a5'] = df['seguridad_1a5'].apply(extraer_num).fillna(3.0)
+    else:
+        df['seguridad_1a5'] = 3.0
+
+    # --- OTROS ---
+    df['agent_id'] = range(1, len(df) + 1)
+    if 'medio_influencia' in df.columns:
+        df['medios'] = df['medio_influencia'].fillna('').astype(str)
+    else:
+        df['medios'] = ''
+    
     return df
 
 def get_encuesta_activa() -> Optional[Dict]:

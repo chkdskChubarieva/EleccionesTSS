@@ -66,10 +66,19 @@ def sensitivity_by_estrato(
     if not isinstance(delta_by_estrato, dict):
         delta_by_estrato = {}
 
-    COL_ESTRATO = "Estrato socioeconómico" if "Estrato socioeconómico" in df.columns else "estrato"
-    if COL_ESTRATO not in df.columns:
+    # Detectar columna de estrato (flexible)
+    COL_ESTRATO = None
+    estrato_candidates = ["estrato", "Estrato socioeconómico", "estrato_socioeconomico"]
+    for col in estrato_candidates:
+        if col in df.columns:
+            COL_ESTRATO = col
+            break
+    
+    if COL_ESTRATO is None:
+        print("⚠️ No se encontró columna de estrato en sensibilidad")
         return []
 
+    print(f"🔍 Sensibilidad usando columna: {COL_ESTRATO}")
     results = []
 
     for estrato, sub in df.groupby(COL_ESTRATO):
@@ -122,4 +131,5 @@ def sensitivity_by_estrato(
                 "rank": rank
             })
 
+    print(f"✅ Sensibilidad calculada: {len(results)} resultados")
     return results

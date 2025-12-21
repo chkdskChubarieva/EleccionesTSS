@@ -1,37 +1,38 @@
-{% extends "base.html" %}
-{% block title %}Análisis Descriptivo · Elecciones 2025{% endblock %}
-
-{% block head_extra %}
+{% extends "base.html" %} {% block title %}Análisis Descriptivo · Elecciones
+2025{% endblock %} {% block head_extra %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-{% endblock %}
-
-{% block content %}
+{% endblock %} {% block content %}
 <div class="mx-auto max-w-7xl px-4 py-6 space-y-6">
-
   <!-- Header -->
   <div class="flex flex-col gap-2">
-    <h1 class="text-3xl font-bold text-slate-900">Análisis Descriptivo de la Encuesta</h1>
+    <h1 class="text-3xl font-bold text-slate-900">
+      Análisis Descriptivo de la Encuesta
+    </h1>
     <p class="text-slate-600">
-      Visualización de las métricas clave de la encuesta realizada a jóvenes universitarios y recién profesionalizados
+      Visualización de las métricas clave de la encuesta realizada a jóvenes
+      universitarios y recién profesionalizados
     </p>
   </div>
 
   <!-- Grid de gráficos descriptivos -->
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-    
     <!-- Intención de voto -->
     <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
       <div class="mb-4">
         <h3 class="font-bold text-slate-900 mb-1">Intención de Voto Directa</h3>
         <p class="text-xs text-slate-600">
-          Distribución porcentual de la preferencia electoral declarada por los encuestados. 
-          Muestra la proporción de votos para cada candidato, votos en blanco/nulo e indecisos.
+          Distribución porcentual de la preferencia electoral declarada por los
+          encuestados. Muestra la proporción de votos para cada candidato, votos
+          en blanco/nulo e indecisos.
         </p>
       </div>
       <div class="flex justify-center">
         <canvas id="pieVoto" class="max-h-[300px]"></canvas>
       </div>
-      <div id="voto_summary" class="mt-4 text-xs text-slate-600 bg-slate-50 rounded-lg p-3">
+      <div
+        id="voto_summary"
+        class="mt-4 text-xs text-slate-600 bg-slate-50 rounded-lg p-3"
+      >
         Total de respuestas: <span class="font-semibold">—</span>
       </div>
     </div>
@@ -39,43 +40,50 @@
     <!-- Distribución por estrato -->
     <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
       <div class="mb-4">
-        <h3 class="font-bold text-slate-900 mb-1">Distribución por Estrato Socioeconómico</h3>
+        <h3 class="font-bold text-slate-900 mb-1">
+          Distribución por Estrato Socioeconómico
+        </h3>
         <p class="text-xs text-slate-600">
-          Comparación de la intención de voto entre los diferentes estratos socioeconómicos (Bajo, Medio-Bajo, Medio, Medio-Alto). 
-          Permite identificar patrones de preferencia según nivel económico.
+          Comparación de la intención de voto entre los diferentes estratos
+          socioeconómicos (Bajo, Medio-Bajo, Medio, Medio-Alto). Permite
+          identificar patrones de preferencia según nivel económico.
         </p>
       </div>
       <canvas id="barEstrato" class="max-h-[300px]"></canvas>
       <div class="mt-4 text-xs text-slate-600 bg-blue-50 rounded-lg p-3">
         <div class="font-semibold mb-1">Interpretación:</div>
-        Los estratos más altos tienden a mostrar preferencias diferentes a los estratos bajos, 
-        reflejando la segmentación socioeconómica del voto.
+        Los estratos más altos tienden a mostrar preferencias diferentes a los
+        estratos bajos, reflejando la segmentación socioeconómica del voto.
       </div>
     </div>
 
     <!-- Distribución por ideología -->
     <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
       <div class="mb-4">
-        <h3 class="font-bold text-slate-900 mb-1">Distribución por Alineamiento Ideológico</h3>
+        <h3 class="font-bold text-slate-900 mb-1">
+          Distribución por Alineamiento Ideológico
+        </h3>
         <p class="text-xs text-slate-600">
-          Preferencia electoral segmentada por la identificación ideológica personal del encuestado 
-          (Izquierda, Centro-Izquierda, Centro, Centro-Derecha, Derecha). Muestra la coherencia entre ideología y voto.
+          Preferencia electoral segmentada por la identificación ideológica
+          personal del encuestado (Izquierda, Centro-Izquierda, Centro,
+          Centro-Derecha, Derecha). Muestra la coherencia entre ideología y
+          voto.
         </p>
       </div>
       <canvas id="barIdeo" class="max-h-[300px]"></canvas>
       <div class="mt-4 text-xs text-slate-600 bg-sky-50 rounded-lg p-3">
         <div class="font-semibold mb-1">Interpretación:</div>
-        El alineamiento ideológico es un fuerte predictor del voto, con mayor coherencia 
-        en los extremos del espectro político.
+        El alineamiento ideológico es un fuerte predictor del voto, con mayor
+        coherencia en los extremos del espectro político.
       </div>
     </div>
-
   </div>
 
   <!-- Estadísticas adicionales -->
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-    
-    <div class="rounded-2xl border border-slate-200 bg-gradient-to-br from-blue-50 to-sky-50 p-6 shadow-sm">
+    <div
+      class="rounded-2xl border border-slate-200 bg-gradient-to-br from-blue-50 to-sky-50 p-6 shadow-sm"
+    >
       <h3 class="font-bold text-slate-900 mb-4">Resumen Estadístico</h3>
       <div id="stats_summary" class="space-y-2 text-sm">
         <div class="flex justify-between py-2 border-b border-slate-200">
@@ -102,171 +110,207 @@
     </div>
 
     <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <h3 class="font-bold text-slate-900 mb-4">Distribuciones Normales Calibradas</h3>
+      <h3 class="font-bold text-slate-900 mb-4">
+        Distribuciones Normales Calibradas
+      </h3>
       <p class="text-sm text-slate-600 mb-4">
-        Parámetros μ (media) y σ (desviación estándar) calculados a partir de las respuestas 
-        para alimentar el modelo de simulación basado en agentes.
+        Parámetros μ (media) y σ (desviación estándar) calculados a partir de
+        las respuestas para alimentar el modelo de simulación basado en agentes.
       </p>
-      <div id="normals_display" class="space-y-2 text-xs font-mono bg-slate-50 rounded-lg p-4">
+      <div
+        id="normals_display"
+        class="space-y-2 text-xs font-mono bg-slate-50 rounded-lg p-4"
+      >
         <!-- Se llenará dinámicamente -->
       </div>
     </div>
-
   </div>
-
 </div>
 
 <script>
-let pieVoto, barEstrato, barIdeo;
+  let pieVoto, barEstrato, barIdeo;
 
-async function loadDescriptivo() {
-  const res = await fetch("/api/calibrate");
-  const data = await res.json();
-
-  // Pie voto
-  const init = data.init_dist || {};
-  const labels = Object.keys(init);
-  const values = Object.values(init);
-
-  if (pieVoto) pieVoto.destroy();
-  const ctxPie = document.getElementById("pieVoto");
-  pieVoto = new Chart(ctxPie, {
-    type: "doughnut",
-    data: {
-      labels: labels,
-      datasets: [{
-        data: values,
-        backgroundColor: [
-          'rgb(255, 99, 132)',
-          'rgb(54, 162, 235)',
-          'rgb(255, 205, 86)',
-          'rgb(201, 203, 207)',
-          'rgb(153, 102, 255)'
-        ],
-        borderWidth: 2,
-        borderColor: '#ffffff'
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: true,
-      plugins: {
-        legend: {
-          position: 'bottom'
-        }
+  async function loadDescriptivo() {
+    try {
+      const res = await fetch("/api/calibrate");
+      if (!res.ok) {
+        throw new Error(`Error HTTP ${res.status}: ${res.statusText}`);
       }
-    }
-  });
+      const data = await res.json();
 
-  // Summary
-  document.getElementById("voto_summary").innerHTML = `Total de respuestas: <span class="font-semibold">${data.n || 0}</span>`;
+      // Pie voto
+      const init = data.init_dist || {};
+      const labels = Object.keys(init);
+      const values = Object.values(init);
 
-  // Stats
-  document.getElementById("stat_total").textContent = data.n || 0;
-  document.getElementById("stat_a").textContent = `${((init["A"] || 0) * 100).toFixed(1)}%`;
-  document.getElementById("stat_b").textContent = `${((init["B"] || 0) * 100).toFixed(1)}%`;
-  document.getElementById("stat_indeciso").textContent = `${((init["Indeciso"] || 0) * 100).toFixed(1)}%`;
-  const otros = (init["Blanco"] || 0) + (init["Nulo"] || 0);
-  document.getElementById("stat_otro").textContent = `${(otros * 100).toFixed(1)}%`;
-
-  // Barras estrato
-  const be = data.by_estrato || {};
-  const estLabels = Object.keys(be);
-  const A = estLabels.map(e => (be[e]["A"] || 0) * 100);
-  const B = estLabels.map(e => (be[e]["B"] || 0) * 100);
-  
-  if (barEstrato) barEstrato.destroy();
-  const ctxEst = document.getElementById("barEstrato");
-  barEstrato = new Chart(ctxEst, {
-    type: "bar",
-    data: {
-      labels: estLabels,
-      datasets: [
-        {
-          label: "Tuto (A)",
-          data: A,
-          backgroundColor: 'rgb(255, 99, 132)',
-          borderRadius: 6
+      if (pieVoto) pieVoto.destroy();
+      const ctxPie = document.getElementById("pieVoto");
+      pieVoto = new Chart(ctxPie, {
+        type: "doughnut",
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              data: values,
+              backgroundColor: [
+                "rgb(255, 99, 132)",
+                "rgb(54, 162, 235)",
+                "rgb(255, 205, 86)",
+                "rgb(201, 203, 207)",
+                "rgb(153, 102, 255)",
+              ],
+              borderWidth: 2,
+              borderColor: "#ffffff",
+            },
+          ],
         },
-        {
-          label: "Paz (B)",
-          data: B,
-          backgroundColor: 'rgb(54, 162, 235)',
-          borderRadius: 6
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      scales: {
-        y: {
-          beginAtZero: true,
-          max: 100,
-          ticks: {
-            callback: function(value) {
-              return value + '%';
-            }
-          }
-        }
-      }
-    }
-  });
-
-  // Barras ideología
-  const bi = data.by_ideologia || {};
-  const ideLabels = Object.keys(bi);
-  const Ai = ideLabels.map(e => (bi[e]["A"] || 0) * 100);
-  const Bi = ideLabels.map(e => (bi[e]["B"] || 0) * 100);
-  
-  if (barIdeo) barIdeo.destroy();
-  const ctxIdeo = document.getElementById("barIdeo");
-  barIdeo = new Chart(ctxIdeo, {
-    type: "bar",
-    data: {
-      labels: ideLabels,
-      datasets: [
-        {
-          label: "Tuto (A)",
-          data: Ai,
-          backgroundColor: 'rgb(255, 99, 132)',
-          borderRadius: 6
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: {
+            legend: {
+              position: "bottom",
+            },
+          },
         },
-        {
-          label: "Paz (B)",
-          data: Bi,
-          backgroundColor: 'rgb(54, 162, 235)',
-          borderRadius: 6
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      scales: {
-        y: {
-          beginAtZero: true,
-          max: 100,
-          ticks: {
-            callback: function(value) {
-              return value + '%';
-            }
-          }
-        }
+      });
+
+      // Summary
+      document.getElementById(
+        "voto_summary"
+      ).innerHTML = `Total de respuestas: <span class="font-semibold">${
+        data.n || 0
+      }</span>`;
+
+      // Stats
+      document.getElementById("stat_total").textContent = data.n || 0;
+      document.getElementById("stat_a").textContent = `${(
+        (init["A"] || 0) * 100
+      ).toFixed(1)}%`;
+      document.getElementById("stat_b").textContent = `${(
+        (init["B"] || 0) * 100
+      ).toFixed(1)}%`;
+      document.getElementById("stat_indeciso").textContent = `${(
+        (init["Indeciso"] || 0) * 100
+      ).toFixed(1)}%`;
+      const otros = (init["Blanco"] || 0) + (init["Nulo"] || 0);
+      document.getElementById("stat_otro").textContent = `${(
+        otros * 100
+      ).toFixed(1)}%`;
+
+      // Barras estrato
+      const be = data.by_estrato || {};
+      const estLabels = Object.keys(be);
+      const A = estLabels.map((e) => (be[e]["A"] || 0) * 100);
+      const B = estLabels.map((e) => (be[e]["B"] || 0) * 100);
+
+      if (barEstrato) barEstrato.destroy();
+      const ctxEst = document.getElementById("barEstrato");
+      barEstrato = new Chart(ctxEst, {
+        type: "bar",
+        data: {
+          labels: estLabels,
+          datasets: [
+            {
+              label: "Tuto (A)",
+              data: A,
+              backgroundColor: "rgb(255, 99, 132)",
+              borderRadius: 6,
+            },
+            {
+              label: "Paz (B)",
+              data: B,
+              backgroundColor: "rgb(54, 162, 235)",
+              borderRadius: 6,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 100,
+              ticks: {
+                callback: function (value) {
+                  return value + "%";
+                },
+              },
+            },
+          },
+        },
+      });
+
+      // Barras ideología
+      const bi = data.by_ideologia || {};
+      const ideLabels = Object.keys(bi);
+      const Ai = ideLabels.map((e) => (bi[e]["A"] || 0) * 100);
+      const Bi = ideLabels.map((e) => (bi[e]["B"] || 0) * 100);
+
+      if (barIdeo) barIdeo.destroy();
+      const ctxIdeo = document.getElementById("barIdeo");
+      barIdeo = new Chart(ctxIdeo, {
+        type: "bar",
+        data: {
+          labels: ideLabels,
+          datasets: [
+            {
+              label: "Tuto (A)",
+              data: Ai,
+              backgroundColor: "rgb(255, 99, 132)",
+              borderRadius: 6,
+            },
+            {
+              label: "Paz (B)",
+              data: Bi,
+              backgroundColor: "rgb(54, 162, 235)",
+              borderRadius: 6,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 100,
+              ticks: {
+                callback: function (value) {
+                  return value + "%";
+                },
+              },
+            },
+          },
+        },
+      });
+
+      // Normals
+      const normals = data.normals || {};
+      const normalsHtml = Object.keys(normals)
+        .map((key) => {
+          const n = normals[key];
+          return `<div class="flex justify-between py-1">
+        <span class="text-slate-600">${key}:</span>
+        <span class="text-slate-900">μ=${n.mu.toFixed(3)}, σ=${n.sigma.toFixed(
+            3
+          )}</span>
+      </div>`;
+        })
+        .join("");
+      document.getElementById("normals_display").innerHTML =
+        normalsHtml ||
+        "<div class='text-slate-500'>No hay datos disponibles</div>";
+    } catch (error) {
+      console.error("Error cargando datos descriptivos:", error);
+      const errorMsg = `❌ Error al cargar datos: ${error.message}. Verifica la consola del navegador (F12) para más detalles.`;
+      // Mostrar error en algún elemento visible
+      const stats = document.getElementById("stats_summary");
+      if (stats) {
+        stats.innerHTML = `<div class="text-red-600 font-semibold">${errorMsg}</div>`;
       }
     }
-  });
+  }
 
-  // Normals
-  const normals = data.normals || {};
-  const normalsHtml = Object.keys(normals).map(key => {
-    const n = normals[key];
-    return `<div class="flex justify-between py-1">
-      <span class="text-slate-600">${key}:</span>
-      <span class="text-slate-900">μ=${n.mu.toFixed(3)}, σ=${n.sigma.toFixed(3)}</span>
-    </div>`;
-  }).join("");
-  document.getElementById("normals_display").innerHTML = normalsHtml || "<div class='text-slate-500'>No hay datos disponibles</div>";
-}
-
-document.addEventListener("DOMContentLoaded", loadDescriptivo);
+  document.addEventListener("DOMContentLoaded", loadDescriptivo);
 </script>
 {% endblock %}
