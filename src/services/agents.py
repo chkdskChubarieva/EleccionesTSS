@@ -1,5 +1,10 @@
+# src/services/agents.py
 from dataclasses import dataclass
 from typing import Dict
+
+def clamp01(x: float) -> float:
+    return max(0.0, min(1.0, x))
+
 
 @dataclass
 class Agent:
@@ -8,50 +13,49 @@ class Agent:
     estrato: str
     ideologia: str
     seguridad_1a5: float   
-    
-    # Guardamos cuánto le importan estos temas (normalizado 0.0 a 1.0)
+
+    # Importancia por tema (0.0 a 1.0) — CLAVES ALINEADAS A betas_sim.json
     intereses: Dict[str, float] 
-    
-    lealtad: float         # Resistencia al cambio
-    suscept: float         # Sensibilidad a redes/entorno
+
+    lealtad: float
+    suscept: float
 
     evento_det: str
     medios: str
 
-def clamp01(x: float) -> float:
-    return max(0.0, min(1.0, x))
 
 def build_agent(row) -> Agent:
     seg = float(row.get("seguridad_1a5", 3))
-    
-    # Calculamos lealtad (Firmeza)
+
+    # Lealtad (firmeza de voto)
     lealtad = clamp01((seg - 1.0) / 4.0)
 
-    # Calculamos susceptibilidad (Redes sociales aumentan exposición)
+    # Susceptibilidad a redes
     medios = str(row.get("medios", "")).lower()
-    usa_redes = any(k in medios for k in ["tiktok", "facebook", "instagram", "twitter", "x "])
+    usa_redes = any(k in medios for k in ["tiktok", "facebook", "instagram", "twitter", "x"])
     base_sus = 1.0 - lealtad
     suscept = clamp01(base_sus + (0.15 if usa_redes else 0.0))
 
-    # Buscamos las columnas de la encuesta "Factores decisión..." y las normalizamos
+    # Extraer intereses desde encuesta (1-5 → 0-1)
     def get_interest(col_keyword):
         col_name = next((c for c in row.index if col_keyword in str(c)), None)
         if col_name:
             try:
-                val = float(row[col_name]) # Valor 1 a 5
-                return (val - 1) / 4.0     # Normalizar a 0..1
-            except:
+                val = float(row[col_name])
+                return (val - 1.0) / 4.0
+            except Exception:
                 return 0.5
-        return 0.5 # Valor neutro si falta dato
+        return 0.5
 
+    # 🔑 TOPICS ALINEADOS A betas_sim.json
     intereses = {
-        "economia": get_interest("Economía"),
+        "economia_empleo": get_interest("Economía"),
         "educacion": get_interest("Educación"),
-        "corrupcion": get_interest("Corrupción"),
-        "seguridad": get_interest("Seguridad"),
-        "ambiente": get_interest("Medio ambiente"),
-        "derechos": get_interest("Derechos"),
-        "salud": get_interest("Salud") 
+        "corrupcion_institucional": get_interest("Corrupción"),
+        "seguridad_ciudadana": get_interest("Seguridad"),
+        "medio_ambiente": get_interest("Medio ambiente"),
+        "derechos_sociales": get_interest("Derechos"),
+        "salud": get_interest("Salud")
     }
 
     return Agent(
@@ -63,6 +67,6 @@ def build_agent(row) -> Agent:
         intereses=intereses,
         lealtad=lealtad,
         suscept=suscept,
-        evento_det=str(row.get("evento_det", "")), 
+        evento_det=str(row.get("evento_det", "")),
         medios=medios
     )

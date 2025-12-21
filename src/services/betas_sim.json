@@ -1,0 +1,53 @@
+{
+  "beta0": 0.22146975537061875,
+  "global": {
+    "economia_empleo": -0.322356463904098,
+    "corrupcion_institucional": 0.06187280343733866,
+    "seguridad_ciudadana": 0.8,
+    "servicios_publicos": -0.05885197950048159,
+    "medio_ambiente": 0.06687705851545518,
+    "derechos_sociales": -0.7886102153768177,
+    "modelo_desarrollo": -0.4712393485932102,
+    "liderazgo_competencia": -0.05666996965447272,
+    "conexion_juventud": 0.1352563609781114,
+    "ideologia": 0.1289110190446844,
+    "medios_redes": -0.022075381710314573,
+    "shock_evento": 0.013276962755221276,
+    "politizacion": -0.10056787003270391
+  },
+  "delta_by_estrato": {
+    "Bajo": 0.25651297473257223,
+    "Medio": -0.7764454850557418,
+    "Medio-Alto": -0.1320374803295035,
+    "Medio-Bajo": 0.6557793265125463
+  },
+  "delta_by_ideologia": {
+    "Centro": 2.483266222922835,
+    "Centro-Derecha": -0.9313703646289059,
+    "Centro-Izquierda": 0.0,
+    "Derecha Conservadora": 0.0,
+    "Izquierda/Progresista": -0.9073407630705067
+  },
+  "legacy": {
+    "betaE": -0.322356463904098,
+    "betaD": 0.06187280343733866,
+    "betaP": 0.013276962755221276,
+    "betaR": -0.022075381710314573
+  },
+  "diagnostics": {
+    "n_train": 41,
+    "accuracy_train": 1.0,
+    "confusion_matrix_train": [
+      [
+        17,
+        0
+      ],
+      [
+        0,
+        24
+      ]
+    ],
+    "source_used": "sheets",
+    "xlsx_used": "C:\\Users\\chris\\Documents\\Taller de Simulación de Sistemas\\Consolidación Actividad 2\\Código\\elecciones_app\\Resultados Encuesta.xlsx"
+  }
+}

@@ -107,26 +107,58 @@ function actualizarAnalisis() {
 function renderTable(rows) {
     const tbody = qs('tbodySensibilidad');
     tbody.innerHTML = '';
-    
+
     if(!rows || rows.length === 0) {
         tbody.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-slate-400">No hay datos disponibles</td></tr>';
         return;
     }
 
-    rows.forEach(row => {
-        // Lógica de colores según magnitud del coeficiente
-        const isHigh = row.coef > 0.8;
+    // A) Agrupar por estrato
+    const byEstrato = {};
+    rows.forEach(r => {
+        const e = r.estrato || "Sin estrato";
+        if (!byEstrato[e]) byEstrato[e] = [];
+        byEstrato[e].push(r);
+    });
+
+    // B) Ordenar por rank (1..3) dentro de cada estrato
+    Object.keys(byEstrato).forEach(e => {
+        byEstrato[e].sort((a, b) => (a.rank ?? 99) - (b.rank ?? 99));
+    });
+
+    // C) Renderizar 1 fila por estrato (rank 1), con tooltip Top 3
+    Object.keys(byEstrato).forEach(estrato => {
+        const topList = byEstrato[estrato].slice(0, 3);
+        const top1 = topList[0];
+
+        if (!top1) return;
+
+        // Tooltip (formato bonito + reemplaza _ por espacios)
+        const tooltip = topList
+            .map((x, i) => {
+                const name = String(x.factor || "").replaceAll("_", " ");
+                const coef = Number(x.coef);
+                return `${i+1}) ${name} (${isFinite(coef) ? coef.toFixed(3) : "0.000"})`;
+            })
+            .join("\n");
+
+        // Colores por coef (solo del top1)
+        const coef1 = Number(top1.coef);
+        const isHigh = isFinite(coef1) && coef1 > 0.8;
         const colorClass = isHigh ? 'text-green-600' : 'text-slate-600';
         const bgClass = isHigh ? 'bg-green-50' : '';
 
         const tr = document.createElement('tr');
-        tr.className = `border-b hover:bg-slate-50 transition-colors ${bgClass}`;
-        // NOTA: Usamos row.factor para corregir el "undefined"
+        tr.className = `border-b hover:bg-slate-50 transition-colors cursor-help ${bgClass}`;
+
+        // ✅ Tooltip nativo del navegador
+        tr.title = `Top 3 factores — ${estrato}\n${tooltip}`;
+
         tr.innerHTML = `
-            <td class="p-3 font-medium text-slate-700">${row.estrato}</td>
-            <td class="p-3 text-right text-xs text-slate-500 font-mono">${row.factor}</td>
+            <td class="p-3 font-medium text-slate-700">${estrato}</td>
+            <td class="p-3 text-right text-xs text-slate-500 font-mono">${String(top1.factor || "")}</td>
             <td class="p-3 text-right font-bold ${colorClass}">
-                ${parseFloat(row.coef).toFixed(3)}
+                ${isFinite(coef1) ? coef1.toFixed(3) : "0.000"}
             </td>
         `;
         tbody.appendChild(tr);
